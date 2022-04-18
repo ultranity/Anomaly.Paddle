@@ -143,7 +143,7 @@ bash test_tipc/prepare.sh test_tipc/configs/PaDiM/train_infer_python.txt 'lite_t
 bash test_tipc/test_train_inference_python.sh test_tipc/configs/PaDiM/train_infer_python.txt 'lite_train_lite_infer'
 ```
 TIPC结果：
-![输出日志](test_tipc/output/PaDiM.log)
+[输出日志](test_tipc/output/PaDiM.log)
 
 ## 6 模型信息
 

@@ -4,7 +4,10 @@
 
 基于 Paddle 的异常检测方法复现
 
-参考: [anomalib](https://github.com/openvinotoolkit/anomalib)
+**参考repo:** 
+- [PaDiM-Anomaly-Detection-Localization-master](https://github.com/xiahaifeng1995/PaDiM-Anomaly-Detection-Localization-master)
+- [PaDiM-Paddle](https://github.com/CuberrChen/PaDiM-Paddle)
+- [anomalib](https://github.com/openvinotoolkit/anomalib)
 
 ### 复现论文 |Including paper:<br>
 

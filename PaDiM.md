@@ -18,8 +18,8 @@ PaDiM是一种基于图像Patch的无监督异常检测算法，在训练过程�
 
 - [anomalib](https://github.com/openvinotoolkit/anomalib)
 - [PaDiM-Anomaly-Detection-Localization-master](https://github.com/xiahaifeng1995/PaDiM-Anomaly-Detection-Localization-master)
-
-在此非常感谢`CuberrChen`贡献的[PaDiM-Paddle](https://github.com/CuberrChen/PaDiM-Paddle)项目，提高了本repo复现论文的效率。
+- [PaDiM-Paddle](https://github.com/CuberrChen/PaDiM-Paddle)
+在此非常感谢`xiahaifeng1995`贡献的[PaDiM-Anomaly-Detection-Localization-master](https://github.com/xiahaifeng1995/PaDiM-Anomaly-Detection-Localization-master)，以及`CuberrChen`贡献的[PaDiM-Paddle](https://github.com/CuberrChen/PaDiM-Paddle)项目，提高了本repo复现论文的效率。
 
 感谢百度 AIStudio 提供的算力支持。
 

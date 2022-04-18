@@ -2,25 +2,27 @@
 
 ## 简介
 基于 Paddle 的异常检测方法复现
+
 参考: [anomalib](https://github.com/openvinotoolkit/anomalib)
 
 
-目前已实现|Including paper:<br>
-[x] [PaDiM: a Patch Distribution Modeling Framework for Anomaly Detection and Localization](https://arxiv.org/abs/2011.08785)
-[x] [Semi-orthogonal Embedding for Efficient Unsupervised Anomaly Segmentation](https://arxiv.org/abs/2105.14737)
-[ ] [Modeling the Distribution of Normal Data in Pre-Trained Deep Features for Anomaly Detection](https://arxiv.org/abs/2005.14140)
-[ ] [PatchCore: ]
+复现论文 |Including paper:<br>
+- [X] [PaDiM: a Patch Distribution Modeling Framework for Anomaly Detection and Localization](https://arxiv.org/abs/2011.08785)
+- [x] [Semi-orthogonal Embedding for Efficient Unsupervised Anomaly Segmentation](https://arxiv.org/abs/2105.14737)
+- [ ] [Modeling the Distribution of Normal Data in Pre-Trained Deep Features for Anomaly Detection](https://arxiv.org/abs/2005.14140)
+- [ ] [PatchCore:	Towards Total Recall in Industrial Anomaly Detection ](https://arxiv.org/abs/2106.08265)
+
 and so on...
 
 数据集|Datasets:
-[x] [MVTec AD](https://www.mvtec.com/company/research/datasets/mvtec-ad)
-[ ] [KolektorSDD]()
-[ ] [mSTC]()
+- [x] [MVTec AD](https://www.mvtec.com/company/research/datasets/mvtec-ad)
+- [ ] [KolektorSDD]()
+- [ ] [mSTC]()
 
 评估指标|Metrics:
-[x] Image AUROC
-[x] Pixel AUROC
-[x] PRO score (Per Region Overlap Score)
+- [x] Image AUROC
+- [x] Pixel AUROC
+- [x] PRO score (Per Region Overlap Score)
 
 ## 快速开始
 
@@ -31,12 +33,11 @@ git clone git@github.com/ultranity/Anomaly.Paddle.git
 cd Anomaly.Paddle
 ```
 
-### 第二步：训练/验证模型
+### 第二步：训练/验证/导出模型，TIPC测试等
 
 见各算法单独文档
-[PaDiM](PaDiM.md)
-
-[OrthoAD](OrthoAD.md)
+- [PaDiM](PaDiM.md)
+- [OrthoAD](OrthoAD.md)
 
 更多日志及预训练模型见 [AIStudio notebook](https://aistudio.baidu.com/aistudio/projectdetail/3824965)
 

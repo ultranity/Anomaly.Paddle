@@ -1,0 +1,241 @@
+/home/aistudio/Anomaly.Paddle
+Namespace(arch='wide_resnet50_2', batch_size=32, category='all', cpu=False, crop_size=256, data_path='/home/aistudio/data/', einsum=False, eval=True, eval_PRO=True, inc=False, k=300, method='ortho', save_model=True, save_model_subfolder=True, save_path='./output/ortho_wide_resnet50_2_300', save_pic=True, seed=521)
+W0418 17:25:05.025606  1388 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0418 17:25:05.030665  1388 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+Training model 0/15 for carpet
+| feature extraction | train | carpet |: 100%|████| 9/9 [00:16<00:00,  1.76s/it]
+2022-04-18 17:25:29	Train ends, total 18.23s
+Saving model...
+2022-04-18 17:25:34	Save model in ./output/ortho_wide_resnet50_2_300/carpet.pdparams
+2022-04-18 17:25:34	Starting eval model...
+| feature extraction | test | carpet |: 100%|█████| 4/4 [00:08<00:00,  2.00s/it]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/cbook/__init__.py:2349: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  if isinstance(obj, collections.Iterator):
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/cbook/__init__.py:2366: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  return list(data) if isinstance(data, collections.MappingView) else data
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['carpet', 0.9987961476725522, 0.9921200888362242, 0.9735569855330819]
+Training model 1/15 for grid
+| feature extraction | train | grid |: 100%|██████| 9/9 [00:06<00:00,  1.57it/s]
+2022-04-18 17:26:21	Train ends, total 8.33s
+Saving model...
+2022-04-18 17:26:26	Save model in ./output/ortho_wide_resnet50_2_300/grid.pdparams
+2022-04-18 17:26:26	Starting eval model...
+| feature extraction | test | grid |: 100%|███████| 3/3 [00:02<00:00,  1.10it/s]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['grid', 0.9632414369256473, 0.9772908122590435, 0.9475136005051421]
+Training model 2/15 for leather
+| feature extraction | train | leather |: 100%|███| 8/8 [00:11<00:00,  1.38s/it]
+2022-04-18 17:27:10	Train ends, total 13.31s
+Saving model...
+2022-04-18 17:27:15	Save model in ./output/ortho_wide_resnet50_2_300/leather.pdparams
+2022-04-18 17:27:15	Starting eval model...
+| feature extraction | test | leather |: 100%|████| 4/4 [00:07<00:00,  1.86s/it]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['leather', 1.0, 0.9930434760129432, 0.9837354861174772]
+Training model 3/15 for tile
+| feature extraction | train | tile |: 100%|██████| 8/8 [00:09<00:00,  1.06s/it]
+2022-04-18 17:28:24	Train ends, total 11.34s
+Saving model...
+2022-04-18 17:28:28	Save model in ./output/ortho_wide_resnet50_2_300/tile.pdparams
+2022-04-18 17:28:28	Starting eval model...
+| feature extraction | test | tile |: 100%|███████| 4/4 [00:05<00:00,  1.43s/it]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['tile', 0.9862914862914863, 0.9393643080542469, 0.8684923229708351]
+Training model 4/15 for wood
+| feature extraction | train | wood |: 100%|██████| 8/8 [00:15<00:00,  1.86s/it]
+2022-04-18 17:30:00	Train ends, total 17.22s
+Saving model...
+2022-04-18 17:30:03	Save model in ./output/ortho_wide_resnet50_2_300/wood.pdparams
+2022-04-18 17:30:03	Starting eval model...
+| feature extraction | test | wood |: 100%|███████| 3/3 [00:05<00:00,  1.95s/it]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['wood', 0.9903508771929824, 0.9500337741914829, 0.9255763826139742]
+Training model 5/15 for bottle
+| feature extraction | train | bottle |: 100%|████| 7/7 [00:07<00:00,  1.03it/s]
+2022-04-18 17:30:36	Train ends, total 8.92s
+Saving model...
+2022-04-18 17:30:40	Save model in ./output/ortho_wide_resnet50_2_300/bottle.pdparams
+2022-04-18 17:30:40	Starting eval model...
+| feature extraction | test | bottle |: 100%|█████| 3/3 [00:03<00:00,  1.19s/it]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['bottle', 0.9992063492063492, 0.985334609023816, 0.9619842691114153]
+Training model 6/15 for cable
+| feature extraction | train | cable |: 100%|█████| 7/7 [00:12<00:00,  1.83s/it]
+2022-04-18 17:31:25	Train ends, total 14.29s
+Saving model...
+2022-04-18 17:31:28	Save model in ./output/ortho_wide_resnet50_2_300/cable.pdparams
+2022-04-18 17:31:28	Starting eval model...
+| feature extraction | test | cable |: 100%|██████| 5/5 [00:09<00:00,  1.86s/it]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['cable', 0.888680659670165, 0.9744298948137875, 0.9179994395448611]
+Training model 7/15 for capsule
+| feature extraction | train | capsule |: 100%|███| 7/7 [00:12<00:00,  1.70s/it]
+2022-04-18 17:32:42	Train ends, total 13.72s
+Saving model...
+2022-04-18 17:32:46	Save model in ./output/ortho_wide_resnet50_2_300/capsule.pdparams
+2022-04-18 17:32:46	Starting eval model...
+| feature extraction | test | capsule |: 100%|████| 5/5 [00:08<00:00,  1.51s/it]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['capsule', 0.9309932189868368, 0.9894381365926415, 0.9559753963371336]
+Training model 8/15 for hazelnut
+| feature extraction | train | hazelnut |: 100%|█| 13/13 [00:21<00:00,  1.32s/it]
+2022-04-18 17:34:16	Train ends, total 22.74s
+Saving model...
+2022-04-18 17:34:22	Save model in ./output/ortho_wide_resnet50_2_300/hazelnut.pdparams
+2022-04-18 17:34:22	Starting eval model...
+| feature extraction | test | hazelnut |: 100%|███| 4/4 [00:06<00:00,  1.65s/it]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['hazelnut', 0.94, 0.9850205166907371, 0.9417246688731074]
+Training model 9/15 for metal_nut
+| feature extraction | train | metal_nut |: 100%|█| 7/7 [00:05<00:00,  1.22it/s]
+2022-04-18 17:35:04	Train ends, total 7.37s
+Saving model...
+2022-04-18 17:35:09	Save model in ./output/ortho_wide_resnet50_2_300/metal_nut.pdparams
+2022-04-18 17:35:09	Starting eval model...
+| feature extraction | test | metal_nut |: 100%|██| 4/4 [00:03<00:00,  1.07it/s]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['metal_nut', 0.9882697947214076, 0.9790360712759235, 0.9424963172016978]
+Training model 10/15 for pill
+| feature extraction | train | pill |: 100%|██████| 9/9 [00:09<00:00,  1.11it/s]
+2022-04-18 17:36:04	Train ends, total 10.78s
+Saving model...
+2022-04-18 17:36:08	Save model in ./output/ortho_wide_resnet50_2_300/pill.pdparams
+2022-04-18 17:36:08	Starting eval model...
+| feature extraction | test | pill |: 100%|███████| 6/6 [00:06<00:00,  1.01it/s]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['pill', 0.9088925259138024, 0.9651062939147635, 0.9482548040843595]
+Training model 11/15 for screw
+| feature extraction | train | screw |: 100%|███| 10/10 [00:08<00:00,  1.23it/s]
+2022-04-18 17:37:19	Train ends, total 9.64s
+Saving model...
+2022-04-18 17:37:24	Save model in ./output/ortho_wide_resnet50_2_300/screw.pdparams
+2022-04-18 17:37:24	Starting eval model...
+| feature extraction | test | screw |: 100%|██████| 5/5 [00:05<00:00,  1.01s/it]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['screw', 0.8227095716335314, 0.9885159831094966, 0.9535882054688914]
+Training model 12/15 for toothbrush
+| feature extraction | train | toothbrush |: 100%|█| 2/2 [00:03<00:00,  1.65s/it]
+2022-04-18 17:38:13	Train ends, total 4.71s
+Saving model...
+2022-04-18 17:38:17	Save model in ./output/ortho_wide_resnet50_2_300/toothbrush.pdparams
+2022-04-18 17:38:17	Starting eval model...
+| feature extraction | test | toothbrush |: 100%|█| 2/2 [00:02<00:00,  1.62s/it]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['toothbrush', 0.8861111111111111, 0.9892021215445137, 0.9531332164587625]
+Training model 13/15 for transistor
+| feature extraction | train | transistor |: 100%|█| 7/7 [00:12<00:00,  1.65s/it]
+2022-04-18 17:38:49	Train ends, total 13.76s
+Saving model...
+2022-04-18 17:38:53	Save model in ./output/ortho_wide_resnet50_2_300/transistor.pdparams
+2022-04-18 17:38:53	Starting eval model...
+| feature extraction | test | transistor |: 100%|█| 4/4 [00:06<00:00,  1.50s/it]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['transistor', 0.9770833333333333, 0.9774355786272583, 0.9361526480839653]
+Training model 14/15 for zipper
+| feature extraction | train | zipper |: 100%|████| 8/8 [00:06<00:00,  1.48it/s]
+2022-04-18 17:39:57	Train ends, total 7.53s
+Saving model...
+2022-04-18 17:40:01	Save model in ./output/ortho_wide_resnet50_2_300/zipper.pdparams
+2022-04-18 17:40:01	Starting eval model...
+| feature extraction | test | zipper |: 100%|█████| 5/5 [00:05<00:00,  1.00it/s]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:101: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  ret = np.asscalar(ex)
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:425: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_min = np.asscalar(a_min.astype(scaled_dtype))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/image.py:426: DeprecationWarning: np.asscalar(a) is deprecated since NumPy v1.16, use a.item() instead
+  a_max = np.asscalar(a_max.astype(scaled_dtype))
+['zipper', 0.9104516806722689, 0.9875832731296803, 0.9619705654614579]
+Evaluation result saved at./output/ortho_wide_resnet50_2_300/all.csv:
+            Image_AUROC  Pixel_AUROC  PRO_score
+category                                       
+carpet         0.998796     0.992120   0.973557
+grid           0.963241     0.977291   0.947514
+leather        1.000000     0.993043   0.983735
+tile           0.986291     0.939364   0.868492
+wood           0.990351     0.950034   0.925576
+bottle         0.999206     0.985335   0.961984
+cable          0.888681     0.974430   0.917999
+capsule        0.930993     0.989438   0.955975
+hazelnut       0.940000     0.985021   0.941725
+metal_nut      0.988270     0.979036   0.942496
+pill           0.908893     0.965106   0.948255
+screw          0.822710     0.988516   0.953588
+toothbrush     0.886111     0.989202   0.953133
+transistor     0.977083     0.977436   0.936153
+zipper         0.910452     0.987583   0.961971
+=========Mean Performance========
+Image_AUROC    0.946072
+Pixel_AUROC    0.978197
+PRO_score      0.944810
+dtype: float64

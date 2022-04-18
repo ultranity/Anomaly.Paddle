@@ -1,0 +1,208 @@
+/home/aistudio/Anomaly.Paddle
+Namespace(arch='resnet18', batch_size=32, category='capsule', cpu=False, crop_size=256, data_path='./test_tipc/data/MVTec', einsum=False, eval=False, eval_PRO=False, inc=False, k=100, method='sample', save_model=True, save_model_subfolder=False, save_path='./test_tipc/output/PaDiM/', save_pic=False, seed=521)
+W0418 19:59:41.290248 27013 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0418 19:59:41.295370 27013 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+Training model 0/1 for capsule
+| feature extraction | train | capsule |: 100%|███| 1/1 [00:00<00:00,  3.71it/s]
+2022-04-18 19:59:46	Train ends, total 0.42s
+Saving model...
+2022-04-18 19:59:47	Save model in ./test_tipc/output/PaDiM/capsule.pdparams
+ Run successfully with command - python3.7 train.py --data_path=./test_tipc/data/MVTec --category capsule --method=sample --arch=resnet18 --k=100 --save_path=./test_tipc/output/PaDiM/ --save_model_subfolder=False --save_pic=False!  
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/__init__.py:107: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import MutableMapping
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/rcsetup.py:20: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import Iterable, Mapping
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:53: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import Sized
+Namespace(arch='resnet18', img_size=256, k=100, method='sample', model_path='./test_tipc/output/PaDiM/capsule.pdparams', save_dir='./test_tipc/output/PaDiM/')
+W0418 19:59:50.330034 27062 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0418 19:59:50.335687 27062 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/utils.py:77: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  return (isinstance(seq, collections.Sequence) and
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/vision/models/resnet.py:81
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+Model is saved in ./test_tipc/output/PaDiM/.
+ Run successfully with command - python3.7 export_model.py --method=sample --arch=resnet18 --k=100 --model_path=./test_tipc/output/PaDiM/capsule.pdparams --save_dir=./test_tipc/output/PaDiM/!  
+Namespace(batch_size=1, category='capsule', config='configs/example.yaml', cpu_threads=None, enable_benchmark=True, enable_mkldnn=False, enable_post_process=False, gpu_mem=4000, input_file='./test_tipc/data/MVTec/capsule/test/crack/001.png', ir_optim=True, model_file='./test_tipc/output/PaDiM/model.pdmodel', model_name='PaDiM', params_file=None, precision='fp32', save_path='./test_tipc/output/', seed=521, stats='./test_tipc/output/PaDiM/stats', use_gpu=True, use_tensorrt=False)
+Inference model(PaDiM)...
+load train set feature from: ./test_tipc/output/PaDiM/stats
+Traceback (most recent call last):
+  File "infer.py", line 339, in <module>
+    main()
+  File "infer.py", line 243, in main
+    inference_config, predictor = create_paddle_predictor(args)
+  File "infer.py", line 83, in create_paddle_predictor
+    config = Config(args.model_file, args.params_file)
+TypeError: __init__(): incompatible constructor arguments. The following argument types are supported:
+    1. paddle.fluid.core_avx.AnalysisConfig()
+    2. paddle.fluid.core_avx.AnalysisConfig(arg0: paddle.fluid.core_avx.AnalysisConfig)
+    3. paddle.fluid.core_avx.AnalysisConfig(arg0: str)
+    4. paddle.fluid.core_avx.AnalysisConfig(arg0: str, arg1: str)
+
+Invoked with: './test_tipc/output/PaDiM/model.pdmodel', None
+ Run failed with command - python3.7 infer.py --stats=./test_tipc/output/PaDiM/stats --use_gpu=True --use_tensorrt=False --precision=fp32 --input_file=./test_tipc/data/MVTec/capsule/test/crack/001.png --batch_size=1 --enable_benchmark=True  --model_file=./test_tipc/output/PaDiM/model.pdmodel > ./test_tipc/output/PaDiM/python_infer_gpu_usetrt_False_precision_fp32_batchsize_1.log 2>&1 !  
+--- Running analysis [ir_graph_build_pass]
+--- Running analysis [ir_graph_clean_pass]
+--- Running analysis [ir_analysis_pass]
+--- Running IR pass [simplify_with_basic_ops_pass]
+--- Running IR pass [layer_norm_fuse_pass]
+---    Fused 0 subgraphs into layer_norm op.
+--- Running IR pass [attention_lstm_fuse_pass]
+--- Running IR pass [seqconv_eltadd_relu_fuse_pass]
+--- Running IR pass [seqpool_cvm_concat_fuse_pass]
+--- Running IR pass [mul_lstm_fuse_pass]
+--- Running IR pass [fc_gru_fuse_pass]
+---    fused 0 pairs of fc gru patterns
+--- Running IR pass [mul_gru_fuse_pass]
+--- Running IR pass [seq_concat_fc_fuse_pass]
+--- Running IR pass [squeeze2_matmul_fuse_pass]
+--- Running IR pass [reshape2_matmul_fuse_pass]
+--- Running IR pass [flatten2_matmul_fuse_pass]
+--- Running IR pass [map_matmul_v2_to_mul_pass]
+--- Running IR pass [map_matmul_v2_to_matmul_pass]
+--- Running IR pass [map_matmul_to_mul_pass]
+--- Running IR pass [fc_fuse_pass]
+--- Running IR pass [repeated_fc_relu_fuse_pass]
+--- Running IR pass [squared_mat_sub_fuse_pass]
+--- Running IR pass [conv_bn_fuse_pass]
+I0418 20:00:07.144182 27187 fuse_pass_base.cc:57] ---  detected 15 subgraphs
+--- Running IR pass [conv_eltwiseadd_bn_fuse_pass]
+--- Running IR pass [conv_transpose_bn_fuse_pass]
+--- Running IR pass [conv_transpose_eltwiseadd_bn_fuse_pass]
+--- Running IR pass [is_test_pass]
+--- Running IR pass [runtime_context_cache_pass]
+--- Running analysis [ir_params_sync_among_devices_pass]
+--- Running analysis [adjust_cudnn_workspace_size_pass]
+--- Running analysis [inference_op_replace_pass]
+--- Running analysis [memory_optimize_pass]
+I0418 20:00:07.148667 27187 memory_optimize_pass.cc:216] Cluster name : x  size: 786432
+I0418 20:00:07.148689 27187 memory_optimize_pass.cc:216] Cluster name : relu_1.tmp_0  size: 1048576
+I0418 20:00:07.148692 27187 memory_optimize_pass.cc:216] Cluster name : pool2d_0.tmp_0  size: 1048576
+I0418 20:00:07.148696 27187 memory_optimize_pass.cc:216] Cluster name : batch_norm_0.tmp_2  size: 4194304
+I0418 20:00:07.148699 27187 memory_optimize_pass.cc:216] Cluster name : conv2d_20.tmp_0  size: 4194304
+--- Running analysis [ir_graph_to_program_pass]
+I0418 20:00:07.163704 27187 analysis_predictor.cc:714] ======= optimize end =======
+I0418 20:00:07.164088 27187 naive_executor.cc:98] ---  skip [feed], feed -> x
+I0418 20:00:07.165341 27187 naive_executor.cc:98] ---  skip [concat_0.tmp_0], fetch -> fetch
+Namespace(batch_size=1, category='capsule', config='configs/example.yaml', cpu_threads=1, enable_benchmark=True, enable_mkldnn=False, enable_post_process=False, gpu_mem=4000, input_file='./test_tipc/data/MVTec/capsule/test/crack/001.png', ir_optim=True, model_file='./test_tipc/output/PaDiM/model.pdmodel', model_name='PaDiM', params_file='./test_tipc/output/PaDiM/model.pdiparams', precision='fp32', save_path='./test_tipc/output/', seed=521, stats='./test_tipc/output/PaDiM/stats', use_gpu=False, use_tensorrt=False)
+Inference model(PaDiM)...
+load train set feature from: ./test_tipc/output/PaDiM/stats
+W0418 20:00:07.427811 27187 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0418 20:00:07.432708 27187 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+[2022/04/18 20:00:12] root INFO: 
+
+[2022/04/18 20:00:12] root INFO: ---------------------- Env info ----------------------
+[2022/04/18 20:00:12] root INFO:  OS_version: Ubuntu 16.04
+[2022/04/18 20:00:12] root INFO:  CUDA_version: 10.1.243
+[2022/04/18 20:00:12] root INFO:  CUDNN_version: 7.3.1
+[2022/04/18 20:00:12] root INFO:  drivier_version: 418.67
+[2022/04/18 20:00:12] root INFO: ---------------------- Paddle info ----------------------
+[2022/04/18 20:00:12] root INFO:  paddle_version: 2.2.2
+[2022/04/18 20:00:12] root INFO:  paddle_commit: b031c389938bfa15e15bb20494c76f86289d77b0
+[2022/04/18 20:00:12] root INFO:  log_api_version: 1.0
+[2022/04/18 20:00:12] root INFO: ----------------------- Conf info -----------------------
+[2022/04/18 20:00:12] root INFO:  runtime_device: cpu
+[2022/04/18 20:00:12] root INFO:  ir_optim: True
+[2022/04/18 20:00:12] root INFO:  enable_memory_optim: True
+[2022/04/18 20:00:12] root INFO:  enable_tensorrt: False
+[2022/04/18 20:00:12] root INFO:  enable_mkldnn: False
+[2022/04/18 20:00:12] root INFO:  cpu_math_library_num_threads: 1
+[2022/04/18 20:00:12] root INFO: ----------------------- Model info ----------------------
+[2022/04/18 20:00:12] root INFO:  model_name: PaDiM
+[2022/04/18 20:00:12] root INFO:  precision: fp32
+[2022/04/18 20:00:12] root INFO: ----------------------- Data info -----------------------
+[2022/04/18 20:00:12] root INFO:  batch_size: 1
+[2022/04/18 20:00:12] root INFO:  input_shape: dynamic
+[2022/04/18 20:00:12] root INFO:  data_num: 1
+[2022/04/18 20:00:12] root INFO: ----------------------- Perf info -----------------------
+[2022/04/18 20:00:12] root INFO:  cpu_rss(MB): 3177.8555, gpu_rss(MB): None, gpu_util: None%
+[2022/04/18 20:00:12] root INFO:  total time spent(s): 2.8343
+[2022/04/18 20:00:12] root INFO:  preprocess_time(ms): 2732.4045, inference_time(ms): 95.8819, postprocess_time(ms): 6.017
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/auto_log/env.py:53: DeprecationWarning: distro.linux_distribution() is deprecated. It should only be used as a compatibility shim with Python's platform.linux_distribution(). Please use distro.id(), distro.version() and distro.name() instead.
+  plat = distro.linux_distribution()[0]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/auto_log/env.py:54: DeprecationWarning: distro.linux_distribution() is deprecated. It should only be used as a compatibility shim with Python's platform.linux_distribution(). Please use distro.id(), distro.version() and distro.name() instead.
+  ver = distro.linux_distribution()[1]
+ Run successfully with command - python3.7 infer.py --stats=./test_tipc/output/PaDiM/stats --use_gpu=False --enable_mkldnn=False --cpu_threads=1 --input_file=./test_tipc/data/MVTec/capsule/test/crack/001.png --batch_size=1 --enable_benchmark=True --params_file=./test_tipc/output/PaDiM/model.pdiparams --precision=fp32 --model_file=./test_tipc/output/PaDiM/model.pdmodel > ./test_tipc/output/PaDiM/python_infer_cpu_usemkldnn_False_threads_1_precision_fp32_batchsize_1.log 2>&1 !  
+--- Running analysis [ir_graph_build_pass]
+--- Running analysis [ir_graph_clean_pass]
+--- Running analysis [ir_analysis_pass]
+--- Running IR pass [simplify_with_basic_ops_pass]
+--- Running IR pass [layer_norm_fuse_pass]
+---    Fused 0 subgraphs into layer_norm op.
+--- Running IR pass [attention_lstm_fuse_pass]
+--- Running IR pass [seqconv_eltadd_relu_fuse_pass]
+--- Running IR pass [seqpool_cvm_concat_fuse_pass]
+--- Running IR pass [mul_lstm_fuse_pass]
+--- Running IR pass [fc_gru_fuse_pass]
+---    fused 0 pairs of fc gru patterns
+--- Running IR pass [mul_gru_fuse_pass]
+--- Running IR pass [seq_concat_fc_fuse_pass]
+--- Running IR pass [squeeze2_matmul_fuse_pass]
+--- Running IR pass [reshape2_matmul_fuse_pass]
+--- Running IR pass [flatten2_matmul_fuse_pass]
+--- Running IR pass [map_matmul_v2_to_mul_pass]
+--- Running IR pass [map_matmul_v2_to_matmul_pass]
+--- Running IR pass [map_matmul_to_mul_pass]
+--- Running IR pass [fc_fuse_pass]
+--- Running IR pass [repeated_fc_relu_fuse_pass]
+--- Running IR pass [squared_mat_sub_fuse_pass]
+--- Running IR pass [conv_bn_fuse_pass]
+I0418 20:00:18.170373 27316 fuse_pass_base.cc:57] ---  detected 15 subgraphs
+--- Running IR pass [conv_eltwiseadd_bn_fuse_pass]
+--- Running IR pass [conv_transpose_bn_fuse_pass]
+--- Running IR pass [conv_transpose_eltwiseadd_bn_fuse_pass]
+--- Running IR pass [is_test_pass]
+--- Running IR pass [runtime_context_cache_pass]
+--- Running analysis [ir_params_sync_among_devices_pass]
+--- Running analysis [adjust_cudnn_workspace_size_pass]
+--- Running analysis [inference_op_replace_pass]
+--- Running analysis [memory_optimize_pass]
+I0418 20:00:18.174818 27316 memory_optimize_pass.cc:216] Cluster name : x  size: 786432
+I0418 20:00:18.174840 27316 memory_optimize_pass.cc:216] Cluster name : relu_1.tmp_0  size: 1048576
+I0418 20:00:18.174844 27316 memory_optimize_pass.cc:216] Cluster name : pool2d_0.tmp_0  size: 1048576
+I0418 20:00:18.174849 27316 memory_optimize_pass.cc:216] Cluster name : batch_norm_0.tmp_2  size: 4194304
+I0418 20:00:18.174852 27316 memory_optimize_pass.cc:216] Cluster name : conv2d_20.tmp_0  size: 4194304
+--- Running analysis [ir_graph_to_program_pass]
+I0418 20:00:18.190377 27316 analysis_predictor.cc:714] ======= optimize end =======
+I0418 20:00:18.190977 27316 naive_executor.cc:98] ---  skip [feed], feed -> x
+I0418 20:00:18.192407 27316 naive_executor.cc:98] ---  skip [concat_0.tmp_0], fetch -> fetch
+Namespace(batch_size=1, category='capsule', config='configs/example.yaml', cpu_threads=2, enable_benchmark=True, enable_mkldnn=False, enable_post_process=False, gpu_mem=4000, input_file='./test_tipc/data/MVTec/capsule/test/crack/001.png', ir_optim=True, model_file='./test_tipc/output/PaDiM/model.pdmodel', model_name='PaDiM', params_file='./test_tipc/output/PaDiM/model.pdiparams', precision='fp32', save_path='./test_tipc/output/', seed=521, stats='./test_tipc/output/PaDiM/stats', use_gpu=False, use_tensorrt=False)
+Inference model(PaDiM)...
+load train set feature from: ./test_tipc/output/PaDiM/stats
+W0418 20:00:18.444962 27316 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0418 20:00:18.449946 27316 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+[2022/04/18 20:00:23] root INFO: 
+
+[2022/04/18 20:00:23] root INFO: ---------------------- Env info ----------------------
+[2022/04/18 20:00:23] root INFO:  OS_version: Ubuntu 16.04
+[2022/04/18 20:00:23] root INFO:  CUDA_version: 10.1.243
+[2022/04/18 20:00:23] root INFO:  CUDNN_version: 7.3.1
+[2022/04/18 20:00:23] root INFO:  drivier_version: 418.67
+[2022/04/18 20:00:23] root INFO: ---------------------- Paddle info ----------------------
+[2022/04/18 20:00:23] root INFO:  paddle_version: 2.2.2
+[2022/04/18 20:00:23] root INFO:  paddle_commit: b031c389938bfa15e15bb20494c76f86289d77b0
+[2022/04/18 20:00:23] root INFO:  log_api_version: 1.0
+[2022/04/18 20:00:23] root INFO: ----------------------- Conf info -----------------------
+[2022/04/18 20:00:23] root INFO:  runtime_device: cpu
+[2022/04/18 20:00:23] root INFO:  ir_optim: True
+[2022/04/18 20:00:23] root INFO:  enable_memory_optim: True
+[2022/04/18 20:00:23] root INFO:  enable_tensorrt: False
+[2022/04/18 20:00:23] root INFO:  enable_mkldnn: False
+[2022/04/18 20:00:23] root INFO:  cpu_math_library_num_threads: 2
+[2022/04/18 20:00:23] root INFO: ----------------------- Model info ----------------------
+[2022/04/18 20:00:23] root INFO:  model_name: PaDiM
+[2022/04/18 20:00:23] root INFO:  precision: fp32
+[2022/04/18 20:00:23] root INFO: ----------------------- Data info -----------------------
+[2022/04/18 20:00:23] root INFO:  batch_size: 1
+[2022/04/18 20:00:23] root INFO:  input_shape: dynamic
+[2022/04/18 20:00:23] root INFO:  data_num: 1
+[2022/04/18 20:00:23] root INFO: ----------------------- Perf info -----------------------
+[2022/04/18 20:00:23] root INFO:  cpu_rss(MB): 3170.6016, gpu_rss(MB): None, gpu_util: None%
+[2022/04/18 20:00:23] root INFO:  total time spent(s): 2.9082
+[2022/04/18 20:00:23] root INFO:  preprocess_time(ms): 2830.7321, inference_time(ms): 71.9006, postprocess_time(ms): 5.5954
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/auto_log/env.py:53: DeprecationWarning: distro.linux_distribution() is deprecated. It should only be used as a compatibility shim with Python's platform.linux_distribution(). Please use distro.id(), distro.version() and distro.name() instead.
+  plat = distro.linux_distribution()[0]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/auto_log/env.py:54: DeprecationWarning: distro.linux_distribution() is deprecated. It should only be used as a compatibility shim with Python's platform.linux_distribution(). Please use distro.id(), distro.version() and distro.name() instead.
+  ver = distro.linux_distribution()[1]
+ Run successfully with command - python3.7 infer.py --stats=./test_tipc/output/PaDiM/stats --use_gpu=False --enable_mkldnn=False --cpu_threads=2 --input_file=./test_tipc/data/MVTec/capsule/test/crack/001.png --batch_size=1 --enable_benchmark=True --params_file=./test_tipc/output/PaDiM/model.pdiparams --precision=fp32 --model_file=./test_tipc/output/PaDiM/model.pdmodel > ./test_tipc/output/PaDiM/python_infer_cpu_usemkldnn_False_threads_2_precision_fp32_batchsize_1.log 2>&1 !  

@@ -1,0 +1,244 @@
+/home/aistudio/Anomaly.Paddle
+Namespace(arch='wide_resnet50_2', batch_size=32, category='capsule', cpu=False, crop_size=256, data_path='./test_tipc/data/MVTec', einsum=False, eval=False, eval_PRO=False, inc=False, k=300, method='ortho', save_model=True, save_model_subfolder=False, save_path='./test_tipc/output/OrthoAD/', save_pic=False, seed=521)
+W0418 20:04:22.388384 29026 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0418 20:04:22.393638 29026 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+Training model 0/1 for capsule
+| feature extraction | train | capsule |: 100%|███| 1/1 [00:00<00:00,  3.94it/s]
+2022-04-18 20:04:29	Train ends, total 1.63s
+Saving model...
+2022-04-18 20:04:34	Save model in ./test_tipc/output/OrthoAD/capsule.pdparams
+ Run successfully with command - python3.7 train.py --data_path=./test_tipc/data/MVTec --method=ortho --arch=wide_resnet50_2 --k=300 --category capsule --save_path=./test_tipc/output/OrthoAD/ --save_model_subfolder=False --save_pic=False!  
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/__init__.py:107: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import MutableMapping
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/rcsetup.py:20: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import Iterable, Mapping
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:53: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import Sized
+Namespace(arch='wide_resnet50_2', img_size=256, k=300, method='ortho', model_path='./test_tipc/output/OrthoAD/capsule.pdparams', save_dir='./test_tipc/output/OrthoAD/')
+W0418 20:04:37.698329 29082 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0418 20:04:37.703986 29082 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/utils.py:77: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  return (isinstance(seq, collections.Sequence) and
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmplbm3ghji.py:24
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmpctzqk0o1.py:24
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmpo8kj_4ch.py:24
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmppt2a7p3p.py:24
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmp5memkktu.py:24
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmpjymp1ruy.py:24
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmp94wfatk6.py:24
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmp8t49ticf.py:24
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmpl4riz8rl.py:24
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmp0sqg3db3.py:24
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmpstns6mu9.py:24
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmpw11ggq65.py:24
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmp1tga7_09.py:24
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+Model is saved in ./test_tipc/output/OrthoAD/.
+ Run successfully with command - python3.7 export_model.py --method=ortho --arch=wide_resnet50_2 --k=300 --model_path=./test_tipc/output/OrthoAD/capsule.pdparams --save_dir=./test_tipc/output/OrthoAD/!  
+Namespace(batch_size=1, category='capsule', config='configs/example.yaml', cpu_threads=None, enable_benchmark=True, enable_mkldnn=False, enable_post_process=False, gpu_mem=4000, input_file='./test_tipc/data/MVTec/capsule/test/crack/001.png', ir_optim=True, model_file='./test_tipc/output/OrthoAD/model.pdmodel', model_name='OrthoAD', params_file=None, precision='fp32', save_path='./test_tipc/output/', seed=521, stats='./test_tipc/output/OrthoAD/stats', use_gpu=True, use_tensorrt=False)
+Inference model(OrthoAD)...
+load train set feature from: ./test_tipc/output/OrthoAD/stats
+Traceback (most recent call last):
+  File "infer.py", line 339, in <module>
+    main()
+  File "infer.py", line 243, in main
+    inference_config, predictor = create_paddle_predictor(args)
+  File "infer.py", line 83, in create_paddle_predictor
+    config = Config(args.model_file, args.params_file)
+TypeError: __init__(): incompatible constructor arguments. The following argument types are supported:
+    1. paddle.fluid.core_avx.AnalysisConfig()
+    2. paddle.fluid.core_avx.AnalysisConfig(arg0: paddle.fluid.core_avx.AnalysisConfig)
+    3. paddle.fluid.core_avx.AnalysisConfig(arg0: str)
+    4. paddle.fluid.core_avx.AnalysisConfig(arg0: str, arg1: str)
+
+Invoked with: './test_tipc/output/OrthoAD/model.pdmodel', None
+ Run failed with command - python3.7 infer.py --model_name=OrthoAD --stats=./test_tipc/output/OrthoAD/stats --use_gpu=True --use_tensorrt=False --precision=fp32 --input_file=./test_tipc/data/MVTec/capsule/test/crack/001.png --batch_size=1 --enable_benchmark=True  --model_file=./test_tipc/output/OrthoAD/model.pdmodel > ./test_tipc/output/OrthoAD/python_infer_gpu_usetrt_False_precision_fp32_batchsize_1.log 2>&1 !  
+--- Running analysis [ir_graph_build_pass]
+--- Running analysis [ir_graph_clean_pass]
+--- Running analysis [ir_analysis_pass]
+--- Running IR pass [simplify_with_basic_ops_pass]
+--- Running IR pass [layer_norm_fuse_pass]
+---    Fused 0 subgraphs into layer_norm op.
+--- Running IR pass [attention_lstm_fuse_pass]
+--- Running IR pass [seqconv_eltadd_relu_fuse_pass]
+--- Running IR pass [seqpool_cvm_concat_fuse_pass]
+--- Running IR pass [mul_lstm_fuse_pass]
+--- Running IR pass [fc_gru_fuse_pass]
+---    fused 0 pairs of fc gru patterns
+--- Running IR pass [mul_gru_fuse_pass]
+--- Running IR pass [seq_concat_fc_fuse_pass]
+--- Running IR pass [squeeze2_matmul_fuse_pass]
+--- Running IR pass [reshape2_matmul_fuse_pass]
+--- Running IR pass [flatten2_matmul_fuse_pass]
+--- Running IR pass [map_matmul_v2_to_mul_pass]
+--- Running IR pass [map_matmul_v2_to_matmul_pass]
+--- Running IR pass [map_matmul_to_mul_pass]
+--- Running IR pass [fc_fuse_pass]
+--- Running IR pass [repeated_fc_relu_fuse_pass]
+--- Running IR pass [squared_mat_sub_fuse_pass]
+--- Running IR pass [conv_bn_fuse_pass]
+I0418 20:05:08.070225 29416 fuse_pass_base.cc:57] ---  detected 43 subgraphs
+--- Running IR pass [conv_eltwiseadd_bn_fuse_pass]
+--- Running IR pass [conv_transpose_bn_fuse_pass]
+--- Running IR pass [conv_transpose_eltwiseadd_bn_fuse_pass]
+--- Running IR pass [is_test_pass]
+--- Running IR pass [runtime_context_cache_pass]
+--- Running analysis [ir_params_sync_among_devices_pass]
+--- Running analysis [adjust_cudnn_workspace_size_pass]
+--- Running analysis [inference_op_replace_pass]
+--- Running analysis [memory_optimize_pass]
+I0418 20:05:08.089021 29416 memory_optimize_pass.cc:216] Cluster name : x  size: 786432
+I0418 20:05:08.089051 29416 memory_optimize_pass.cc:216] Cluster name : batch_norm_6.tmp_2  size: 2097152
+I0418 20:05:08.089056 29416 memory_optimize_pass.cc:216] Cluster name : nearest_interp_v2_1.tmp_0  size: 16777216
+I0418 20:05:08.089058 29416 memory_optimize_pass.cc:216] Cluster name : conv2d_63.tmp_0  size: 4194304
+I0418 20:05:08.089062 29416 memory_optimize_pass.cc:216] Cluster name : nearest_interp_v2_0.tmp_0  size: 8388608
+--- Running analysis [ir_graph_to_program_pass]
+I0418 20:05:08.138216 29416 analysis_predictor.cc:714] ======= optimize end =======
+I0418 20:05:08.141978 29416 naive_executor.cc:98] ---  skip [feed], feed -> x
+I0418 20:05:08.143707 29416 naive_executor.cc:98] ---  skip [concat_0.tmp_0], fetch -> fetch
+Namespace(batch_size=1, category='capsule', config='configs/example.yaml', cpu_threads=1, enable_benchmark=True, enable_mkldnn=False, enable_post_process=False, gpu_mem=4000, input_file='./test_tipc/data/MVTec/capsule/test/crack/001.png', ir_optim=True, model_file='./test_tipc/output/OrthoAD/model.pdmodel', model_name='OrthoAD', params_file='./test_tipc/output/OrthoAD/model.pdiparams', precision='fp32', save_path='./test_tipc/output/', seed=521, stats='./test_tipc/output/OrthoAD/stats', use_gpu=False, use_tensorrt=False)
+Inference model(OrthoAD)...
+load train set feature from: ./test_tipc/output/OrthoAD/stats
+W0418 20:05:08.407883 29416 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0418 20:05:08.412789 29416 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+[2022/04/18 20:05:13] root INFO: 
+
+[2022/04/18 20:05:13] root INFO: ---------------------- Env info ----------------------
+[2022/04/18 20:05:13] root INFO:  OS_version: Ubuntu 16.04
+[2022/04/18 20:05:13] root INFO:  CUDA_version: 10.1.243
+[2022/04/18 20:05:13] root INFO:  CUDNN_version: 7.3.1
+[2022/04/18 20:05:13] root INFO:  drivier_version: 418.67
+[2022/04/18 20:05:13] root INFO: ---------------------- Paddle info ----------------------
+[2022/04/18 20:05:13] root INFO:  paddle_version: 2.2.2
+[2022/04/18 20:05:13] root INFO:  paddle_commit: b031c389938bfa15e15bb20494c76f86289d77b0
+[2022/04/18 20:05:13] root INFO:  log_api_version: 1.0
+[2022/04/18 20:05:13] root INFO: ----------------------- Conf info -----------------------
+[2022/04/18 20:05:13] root INFO:  runtime_device: cpu
+[2022/04/18 20:05:13] root INFO:  ir_optim: True
+[2022/04/18 20:05:13] root INFO:  enable_memory_optim: True
+[2022/04/18 20:05:13] root INFO:  enable_tensorrt: False
+[2022/04/18 20:05:13] root INFO:  enable_mkldnn: False
+[2022/04/18 20:05:13] root INFO:  cpu_math_library_num_threads: 1
+[2022/04/18 20:05:13] root INFO: ----------------------- Model info ----------------------
+[2022/04/18 20:05:13] root INFO:  model_name: OrthoAD
+[2022/04/18 20:05:13] root INFO:  precision: fp32
+[2022/04/18 20:05:13] root INFO: ----------------------- Data info -----------------------
+[2022/04/18 20:05:13] root INFO:  batch_size: 1
+[2022/04/18 20:05:13] root INFO:  input_shape: dynamic
+[2022/04/18 20:05:13] root INFO:  data_num: 1
+[2022/04/18 20:05:13] root INFO: ----------------------- Perf info -----------------------
+[2022/04/18 20:05:13] root INFO:  cpu_rss(MB): 3349.7812, gpu_rss(MB): None, gpu_util: None%
+[2022/04/18 20:05:13] root INFO:  total time spent(s): 3.3444
+[2022/04/18 20:05:13] root INFO:  preprocess_time(ms): 2840.8077, inference_time(ms): 477.8774, postprocess_time(ms): 25.7387
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/auto_log/env.py:53: DeprecationWarning: distro.linux_distribution() is deprecated. It should only be used as a compatibility shim with Python's platform.linux_distribution(). Please use distro.id(), distro.version() and distro.name() instead.
+  plat = distro.linux_distribution()[0]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/auto_log/env.py:54: DeprecationWarning: distro.linux_distribution() is deprecated. It should only be used as a compatibility shim with Python's platform.linux_distribution(). Please use distro.id(), distro.version() and distro.name() instead.
+  ver = distro.linux_distribution()[1]
+ Run successfully with command - python3.7 infer.py --model_name=OrthoAD --stats=./test_tipc/output/OrthoAD/stats --use_gpu=False --enable_mkldnn=False --cpu_threads=1 --input_file=./test_tipc/data/MVTec/capsule/test/crack/001.png --batch_size=1 --enable_benchmark=True --params_file=./test_tipc/output/OrthoAD/model.pdiparams --precision=fp32 --model_file=./test_tipc/output/OrthoAD/model.pdmodel > ./test_tipc/output/OrthoAD/python_infer_cpu_usemkldnn_False_threads_1_precision_fp32_batchsize_1.log 2>&1 !  
+--- Running analysis [ir_graph_build_pass]
+--- Running analysis [ir_graph_clean_pass]
+--- Running analysis [ir_analysis_pass]
+--- Running IR pass [simplify_with_basic_ops_pass]
+--- Running IR pass [layer_norm_fuse_pass]
+---    Fused 0 subgraphs into layer_norm op.
+--- Running IR pass [attention_lstm_fuse_pass]
+--- Running IR pass [seqconv_eltadd_relu_fuse_pass]
+--- Running IR pass [seqpool_cvm_concat_fuse_pass]
+--- Running IR pass [mul_lstm_fuse_pass]
+--- Running IR pass [fc_gru_fuse_pass]
+---    fused 0 pairs of fc gru patterns
+--- Running IR pass [mul_gru_fuse_pass]
+--- Running IR pass [seq_concat_fc_fuse_pass]
+--- Running IR pass [squeeze2_matmul_fuse_pass]
+--- Running IR pass [reshape2_matmul_fuse_pass]
+--- Running IR pass [flatten2_matmul_fuse_pass]
+--- Running IR pass [map_matmul_v2_to_mul_pass]
+--- Running IR pass [map_matmul_v2_to_matmul_pass]
+--- Running IR pass [map_matmul_to_mul_pass]
+--- Running IR pass [fc_fuse_pass]
+--- Running IR pass [repeated_fc_relu_fuse_pass]
+--- Running IR pass [squared_mat_sub_fuse_pass]
+--- Running IR pass [conv_bn_fuse_pass]
+I0418 20:05:22.287520 29685 fuse_pass_base.cc:57] ---  detected 43 subgraphs
+--- Running IR pass [conv_eltwiseadd_bn_fuse_pass]
+--- Running IR pass [conv_transpose_bn_fuse_pass]
+--- Running IR pass [conv_transpose_eltwiseadd_bn_fuse_pass]
+--- Running IR pass [is_test_pass]
+--- Running IR pass [runtime_context_cache_pass]
+--- Running analysis [ir_params_sync_among_devices_pass]
+--- Running analysis [adjust_cudnn_workspace_size_pass]
+--- Running analysis [inference_op_replace_pass]
+--- Running analysis [memory_optimize_pass]
+I0418 20:05:22.307096 29685 memory_optimize_pass.cc:216] Cluster name : x  size: 786432
+I0418 20:05:22.307124 29685 memory_optimize_pass.cc:216] Cluster name : batch_norm_6.tmp_2  size: 2097152
+I0418 20:05:22.307129 29685 memory_optimize_pass.cc:216] Cluster name : nearest_interp_v2_1.tmp_0  size: 16777216
+I0418 20:05:22.307133 29685 memory_optimize_pass.cc:216] Cluster name : conv2d_63.tmp_0  size: 4194304
+I0418 20:05:22.307137 29685 memory_optimize_pass.cc:216] Cluster name : nearest_interp_v2_0.tmp_0  size: 8388608
+--- Running analysis [ir_graph_to_program_pass]
+I0418 20:05:22.355129 29685 analysis_predictor.cc:714] ======= optimize end =======
+I0418 20:05:22.359093 29685 naive_executor.cc:98] ---  skip [feed], feed -> x
+I0418 20:05:22.360853 29685 naive_executor.cc:98] ---  skip [concat_0.tmp_0], fetch -> fetch
+Namespace(batch_size=1, category='capsule', config='configs/example.yaml', cpu_threads=2, enable_benchmark=True, enable_mkldnn=False, enable_post_process=False, gpu_mem=4000, input_file='./test_tipc/data/MVTec/capsule/test/crack/001.png', ir_optim=True, model_file='./test_tipc/output/OrthoAD/model.pdmodel', model_name='OrthoAD', params_file='./test_tipc/output/OrthoAD/model.pdiparams', precision='fp32', save_path='./test_tipc/output/', seed=521, stats='./test_tipc/output/OrthoAD/stats', use_gpu=False, use_tensorrt=False)
+Inference model(OrthoAD)...
+load train set feature from: ./test_tipc/output/OrthoAD/stats
+W0418 20:05:22.612494 29685 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0418 20:05:22.617650 29685 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+[2022/04/18 20:05:27] root INFO: 
+
+[2022/04/18 20:05:27] root INFO: ---------------------- Env info ----------------------
+[2022/04/18 20:05:27] root INFO:  OS_version: Ubuntu 16.04
+[2022/04/18 20:05:27] root INFO:  CUDA_version: 10.1.243
+[2022/04/18 20:05:27] root INFO:  CUDNN_version: 7.3.1
+[2022/04/18 20:05:27] root INFO:  drivier_version: 418.67
+[2022/04/18 20:05:27] root INFO: ---------------------- Paddle info ----------------------
+[2022/04/18 20:05:27] root INFO:  paddle_version: 2.2.2
+[2022/04/18 20:05:27] root INFO:  paddle_commit: b031c389938bfa15e15bb20494c76f86289d77b0
+[2022/04/18 20:05:27] root INFO:  log_api_version: 1.0
+[2022/04/18 20:05:27] root INFO: ----------------------- Conf info -----------------------
+[2022/04/18 20:05:27] root INFO:  runtime_device: cpu
+[2022/04/18 20:05:27] root INFO:  ir_optim: True
+[2022/04/18 20:05:27] root INFO:  enable_memory_optim: True
+[2022/04/18 20:05:27] root INFO:  enable_tensorrt: False
+[2022/04/18 20:05:27] root INFO:  enable_mkldnn: False
+[2022/04/18 20:05:27] root INFO:  cpu_math_library_num_threads: 2
+[2022/04/18 20:05:27] root INFO: ----------------------- Model info ----------------------
+[2022/04/18 20:05:27] root INFO:  model_name: OrthoAD
+[2022/04/18 20:05:27] root INFO:  precision: fp32
+[2022/04/18 20:05:27] root INFO: ----------------------- Data info -----------------------
+[2022/04/18 20:05:27] root INFO:  batch_size: 1
+[2022/04/18 20:05:27] root INFO:  input_shape: dynamic
+[2022/04/18 20:05:27] root INFO:  data_num: 1
+[2022/04/18 20:05:27] root INFO: ----------------------- Perf info -----------------------
+[2022/04/18 20:05:27] root INFO:  cpu_rss(MB): 3339.7852, gpu_rss(MB): None, gpu_util: None%
+[2022/04/18 20:05:27] root INFO:  total time spent(s): 3.1131
+[2022/04/18 20:05:27] root INFO:  preprocess_time(ms): 2750.0215, inference_time(ms): 340.8427, postprocess_time(ms): 22.2085
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/auto_log/env.py:53: DeprecationWarning: distro.linux_distribution() is deprecated. It should only be used as a compatibility shim with Python's platform.linux_distribution(). Please use distro.id(), distro.version() and distro.name() instead.
+  plat = distro.linux_distribution()[0]
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/auto_log/env.py:54: DeprecationWarning: distro.linux_distribution() is deprecated. It should only be used as a compatibility shim with Python's platform.linux_distribution(). Please use distro.id(), distro.version() and distro.name() instead.
+  ver = distro.linux_distribution()[1]
+ Run successfully with command - python3.7 infer.py --model_name=OrthoAD --stats=./test_tipc/output/OrthoAD/stats --use_gpu=False --enable_mkldnn=False --cpu_threads=2 --input_file=./test_tipc/data/MVTec/capsule/test/crack/001.png --batch_size=1 --enable_benchmark=True --params_file=./test_tipc/output/OrthoAD/model.pdiparams --precision=fp32 --model_file=./test_tipc/output/OrthoAD/model.pdmodel > ./test_tipc/output/OrthoAD/python_infer_cpu_usemkldnn_False_threads_2_precision_fp32_batchsize_1.log 2>&1 !  

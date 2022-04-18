@@ -1,0 +1,7 @@
+paddlepaddle>=2.2
+skimage
+pandas
+numpy
+matplotlib
+sklearn
+tqdm

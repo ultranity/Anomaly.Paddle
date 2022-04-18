@@ -1,17 +1,28 @@
-## 简介
+## 1. 简介
+
 本项目基于PaddlePaddle框架复现了OrthoAD算法，并在MvTec数据集上进行了实验。
 
 OrthoAD算法在[PaDiM](PaDiM.md)的基础之上对数据降维过程进行了进一步的分析和改进，提出了使用半正交矩阵投影降维的方法提升模型表现。
 模型主体结构与PaDiM一致![attention](assets/PaDiM_arch.png)
 
-**论文：**
-- [1]  Jin-Hwa Kim, Do-Hyeong Kim, Saehoon Yi, Taehoon Lee. [Semi-Orthogonal Embedding for Efficient Unsupervised Anomaly Segmentation](https://arxiv.org/abs/2105.14737)
+**论文：** [Semi-Orthogonal Embedding for Efficient Unsupervised Anomaly Segmentation](https://arxiv.org/abs/2105.14737)
 
-**项目参考：**
+**参考repo:**
+
 - [Semi-Orthogonal Embedding for Efficient Unsupervised Anomaly Segmentation](https://github.com/jnhwkim/orthoad)
+- [anomalib](https://github.com/openvinotoolkit/anomalib)
+- [PaDiM-Anomaly-Detection-Localization-master](https://github.com/xiahaifeng1995/PaDiM-Anomaly-Detection-Localization-master)
 
-## 2 复现精度
->使用resnet18 在MvTec数据集的测试效果如下表。
+感谢百度 AIStudio 提供的算力支持。
+
+**aistudio体验教程:** [地址](https://aistudio.baidu.com/aistudio/projectdetail/3824965)
+
+## 2. 复现精度
+
+- [MvTec数据集说明](#3.2 准备数据)
+
+按复现考核标准，使用Wide ResNet-50-2 在[MVTec AD](https://www.mvtec.com/company/research/datasets/mvtec-ad)数据集的测试效果如下表。
+
 ### 原论文
 |     method     |PRO score|AUROC|
 | -------------- | :---: | :----: |
@@ -54,38 +65,58 @@ OrthoAD算法在[PaDiM](PaDiM.md)的基础之上对数据降维过程进行了�
 AIStudio预训练权重：[notebook](https://aistudio.baidu.com/aistudio/projectdetail/3824965)
 注意：该算法不需要模型训练，没有学习率设置和损失log，设定seed相同即可复现所有输出。
 
-## 3 数据集
+## 3. 准备数据与环境
+
+### 3.1 准备环境
+
+- 硬件：CPU\GPU
+
+- 框架：
+  
+  - PaddlePaddle >= 2.2.0
+  
+  包依赖参见[requirements.txt](requirements.txt)
+  
+  在安装完PaddlePaddle之后，直接使用`pip install -r requirements.txt`安装依赖即可。
+
+### 3.2 准备数据
+
 数据集网站：[MvTec数据集](https://www.mvtec.com/company/research/datasets/mvtec-ad/)
 
-下载后解压：
-```shell
-tar xvf mvtec_anomaly_detection.tar.xz
-```
 AIStudio 中对应数据集 [MVTec-AD](https://aistudio.baidu.com/aistudio/datasetdetail/116034)
 
-## 4 环境依赖
-- 框架:
-    - PaddlePaddle >= 2.2.0
+MVTec AD 是 MVtec 公司提出的一个用于异常检测的数据集，发布于 2019CVPR。与之前的异常检测数据集不同，该数据集模仿了工业实际生产场景，并且主要用于 unsupervised anomaly detection。数据集为异常区域都提供了像素级标注，是一个全面的、包含多种物体、多种异常的数据集。
 
-## 快速开始
+训练集中只包含正常样本，测试集中包含正常样本与缺陷样本，因此需要使用无监督方法学习正常样本的特征表示，并用其检测缺陷样本。这是符合现实的做法，因为异常情况不可预知并无法归纳。
 
-### 第一步：克隆本项目
-```bash
-# clone this repo
-git clone git@github.com/ultranity/Anomaly.Paddle.git
-cd Anomaly.Paddle
+数据集包含不同领域中的五种纹理以及十种物体。
 ```
+textures = ['carpet', 'grid', 'leather', 'tile', 'wood']
+objects = ['bottle','cable', 'capsule','hazelnut', 'metal_nut', 'pill', 'screw', 'toothbrush', 'transistor', 'zipper']
+```
+### 3.3 准备模型
 
-### 第二步：训练模型
-MVTec共有15个类别的子数据集，每个类别都需要单独训练一个模型, 在训练时，通过category参数来指定类别数据进行训练。
+
+该算法使用resnet18等预训练模型作为特征提取器，可以直接调用paddle官方预训练权重。
+
+## 4. 开始使用
+
+可使用 [AIStudio notebook](https://aistudio.baidu.com/aistudio/projectdetail/3824965) 快速体验
+
+### 4.1 模型训练
+
+MVTec共有15个类别的子数据集，每个类别都需要单独提取训练集分布数据。
+可用参数：
+category指定数据类别，可用all代表全部类别，objects代表物体类别，textures代表所有纹理类别。
 data_path指定数据集路径**PATH/TO/MVTec**
 method 指定所用算法，PaDiM对应`--method=ortho`
 arch 指定所用backbone，复现任务为`--arch=wide_resnet50_2`
 k 指定所用特征数量，复现任务为`--k=300`
 save_path指定模型保存路径
 seed 设定随机数种子以便复现
-eval表示在训练时开启指标计算
+eval表示是否在训练时评估模型表现
 eval_PRO表示计算PRO score指标(较慢)
+
 ####全部训练并验证：
 ```bash
 python train.py --data_path=PATH/TO/MVTec/ --category all --method=ortho --arch=wide_resnet50_2 --k=300 --eval  --eval_PRO
@@ -96,7 +127,7 @@ python train.py --data_path=PATH/TO/MVTec/ --category all --method=ortho --arch=
 python train.py --data_path=PATH/TO/MVTec/ --category carpet --method=ortho --arch=wide_resnet50_2 --k=300 --eval  --eval_PRO
 ```
 
-### 第三步：验证模型
+### 4.2 模型评估
 ```bash
 python eval.py --data_path=PATH/TO/MVTec/ --category all --method=ortho --arch=wide_resnet50_2 --k=300 --save_pic  --eval_PRO
 ```
@@ -105,19 +136,18 @@ python eval.py --data_path=PATH/TO/MVTec/ --category all --method=ortho --arch=w
 python eval.py --data_path=PATH/TO/MVTec/ --category carpet --method=ortho --arch=wide_resnet50_2 --k=300 --save_pic  --eval_PRO
 ```
 
-![检测](assets/carpet_val.png)
+![验证](assets/carpet_val.png)
 
-### 第四步：预测
+### 4.3 模型预测
 指定单张图片路径，生成预测结果
 ```shell
 python predict.py PATH/TO/MVTec/carpet/test/color/000.png --category carpet --method=ortho --arch=wide_resnet50_2 --k=300 --save_pic
 ```
 
-输出如下：
-
+输出图像如下：
 ![检测](assets/carpet_predict.png)
 
-### 第五步：预训练模型的静态图导出与推理测试
+## 5. 模型推理部署：预训练模型的静态图导出与推理测试
 
 ```shell
 python export_model.py --depth 18 --img_size=224 --model_path=./output/carpet/best.pdparams --save_dir=./output
@@ -131,7 +161,7 @@ python export_model.py --depth 18 --img_size=224 --model_path=./output/carpet/be
 推理结果与动态图一致。
 ![infer](assets/carpet_infer.png)
 
-### 第五步：TIPC
+## 6. 自动化测试脚本
 
 **详细日志在[test_tipc/output](test_tipc/output/PaDiM)**
 
@@ -155,19 +185,12 @@ bash test_tipc/test_train_inference_python.sh test_tipc/configs/PaDiM/train_infe
 TIPC结果：
 [输出日志](test_tipc/output/OrthoAD.log)
 
-## 6 模型信息
-
-相关信息:
-
-| 信息 | 描述 |
-| --- | --- |
-| 作者 | ultranity|
-| 日期 | 2022年4月 |
-| 框架版本 | PaddlePaddle==2.2.1 |
-| 应用场景 | 异常检测 |
-| 硬件支持 | GPU、CPU |
-| 在线体验 | [notebook](https://aistudio.baidu.com/aistudio/projectdetail/3824965)|
-
-## 7 说明
-
-- 感谢百度 AIStudio 提供的算力支持。
+## 7 参考链接与文献
+- [Semi-Orthogonal Embedding for Efficient Unsupervised Anomaly Segmentation](https://arxiv.org/abs/2105.14737)
+- [Semi-Orthogonal Embedding for Efficient Unsupervised Anomaly Segmentation(github.com)](https://github.com/jnhwkim/orthoad)
+- [PaDiM: a Patch Distribution Modeling Framework for Anomaly Detection and Localization](https://arxiv.org/pdf/2011.08785)
+- [anomalib](https://github.com/openvinotoolkit/anomalib)
+- [PaDiM-Anomaly-Detection-Localization-master](https://github.com/xiahaifeng1995/PaDiM-Anomaly-Detection-Localization-master)
+- [PaDiM-Paddle](https://github.com/CuberrChen/PaDiM-Paddle)
+- [Knowledge_Distillation_AD_Paddle](https://github.com/txyugood/Knowledge_Distillation_AD_Paddle)
+- [DFR](https://github.com/YoungGod/DFR)

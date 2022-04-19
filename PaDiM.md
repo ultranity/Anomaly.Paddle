@@ -10,7 +10,7 @@ PaDiM是一种基于图像Patch的无监督异常检测算法，在训练过程�
 在推理过程中，使用马氏距离对测试图像的每个面片位置进行评分，马氏距离矩阵上采样至原图尺寸并高斯滤波后生成异常图，使用阈值分割异常区域。
 由于马氏距离计算中需要用到精度矩阵（也即协方差矩阵的逆），实际训练过程保存的是精度矩阵以减少后续冗余运算。
 考虑到协方差矩阵是非负定实对称矩阵，求逆过程可以使用cholesky分解加速。
-相关优化详见 [Tricks](Tricks.md)
+相关优化详见 [Logs&Tricks](Logs&Tricks.md)
 
 **论文:** [PaDiM: a Patch Distribution Modeling Framework for Anomaly Detection and Localization](https://arxiv.org/pdf/2011.08785)
 
@@ -125,7 +125,7 @@ python eval.py --data_path=PATH/TO/MVTec/ --category all --method=sample --arch=
 ```bash
 python eval.py --data_path=PATH/TO/MVTec/ --category carpet --method=sample --arch=resnet18 --k=100
 ```
-![验证](assets/carpet_val.png)
+![验证](assets/carpet_eval.png)
 
 ### 4.3 模型预测
 指定单张图片路径，生成预测结果

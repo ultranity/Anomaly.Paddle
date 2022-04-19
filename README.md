@@ -4,6 +4,9 @@
 
 基于 Paddle 的异常检测方法复现
 
+
+**[Logs&Tricks](Logs&Tricks.md)**
+
 **参考repo:** 
 - [PaDiM-Anomaly-Detection-Localization-master](https://github.com/xiahaifeng1995/PaDiM-Anomaly-Detection-Localization-master)
 - [PaDiM-Paddle](https://github.com/CuberrChen/PaDiM-Paddle)
@@ -44,7 +47,7 @@ cd Anomaly.Paddle
 pip install -r requirements.txt
 ```
 
-### 第二步：训练/验证/导出模型，TIPC测试等
+### 后续使用：训练/验证/导出模型，TIPC测试等
 
 见各算法单独文档
 - [PaDiM](PaDiM.md)

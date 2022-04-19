@@ -136,7 +136,7 @@ python eval.py --data_path=PATH/TO/MVTec/ --category all --method=ortho --arch=w
 python eval.py --data_path=PATH/TO/MVTec/ --category carpet --method=ortho --arch=wide_resnet50_2 --k=300 --save_pic  --eval_PRO
 ```
 
-![验证](assets/carpet_val.png)
+![验证](assets/carpet_eval.png)
 
 ### 4.3 模型预测
 指定单张图片路径，生成预测结果

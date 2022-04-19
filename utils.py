@@ -1,15 +1,20 @@
 import argparse
-from re import T
+import math
+import os
+
+import matplotlib.pyplot as plt
+import numpy as np
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
-import time
-import numpy as np
 from skimage import measure
 from sklearn.metrics import auc
-import matplotlib.pyplot as plt
 from tqdm import tqdm
-import math
+import matplotlib
+import matplotlib.pyplot as plt
+from skimage import morphology
+from skimage.segmentation import mark_boundaries
+
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -164,3 +169,70 @@ def compute_pro_score(amaps:np.ndarray, masks:np.ndarray) -> float:
     #thi = np.argmax([x[0] for x in df])
     #return df[thi]
     return pro_auc_score
+
+
+def denormalization(x):
+    mean = np.array([0.485, 0.456, 0.406])
+    std = np.array([0.229, 0.224, 0.225])
+    x = (((x.transpose(1, 2, 0) * std) + mean) * 255.).astype(np.uint8)
+    return x
+
+def plot_fig(test_img, scores, gts, threshold, save_dir, class_name, save_pic=True, tag=""):
+    num = len(scores)
+    vmax = scores.max() * 255.
+    vmin = scores.min() * 255.
+    with_gt = gts!=None
+    for i in range(num):
+        img = test_img[i]
+        img = denormalization(img)
+        heat_map = scores[i] * 255
+        mask = scores[i]
+        mask[mask > threshold] = 1
+        mask[mask <= threshold] = 0
+        kernel = morphology.disk(4)
+        mask = morphology.opening(mask, kernel)
+        mask *= 255
+        vis_img = mark_boundaries(img, mask, color=(1, 0, 0), mode='thick')
+        fig_img, ax_img = plt.subplots(1, 4+with_gt, figsize=(12, 3))
+        fig_img.subplots_adjust(right=0.9)
+        norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
+        for ax_i in ax_img:
+            ax_i.axes.xaxis.set_visible(False)
+            ax_i.axes.yaxis.set_visible(False)
+        ax_img[0].imshow(img)
+        ax_img[0].title.set_text('Image')
+        if with_gt:
+            gt = gts[i].transpose(1, 2, 0).squeeze()
+            ax_img[1].imshow(gt, cmap='gray')
+            ax_img[1].title.set_text('GroundTruth')
+        ax = ax_img[with_gt + 1].imshow(heat_map, cmap='jet', norm=norm)
+        ax_img[with_gt + 1].imshow(img, cmap='gray', interpolation='none')
+        ax_img[with_gt + 1].imshow(heat_map, cmap='jet', alpha=0.5, interpolation='none')
+        ax_img[with_gt + 1].title.set_text('Predicted heat map')
+        ax_img[with_gt + 2].imshow(mask, cmap='gray')
+        ax_img[with_gt + 2].title.set_text('Predicted mask')
+        ax_img[with_gt + 3].imshow(vis_img)
+        ax_img[with_gt + 3].title.set_text('Segmentation result')
+        left = 0.92
+        bottom = 0.15
+        width = 0.015
+        height = 1 - 2 * bottom
+        rect = [left, bottom, width, height]
+        cbar_ax = fig_img.add_axes(rect)
+        cb = plt.colorbar(ax, shrink=0.6, cax=cbar_ax, fraction=0.046)
+        cb.ax.tick_params(labelsize=8)
+        font = {
+            'family': 'serif',
+            'color': 'black',
+            'weight': 'normal',
+            'size': 8,
+        }
+        cb.set_label('Anomaly Score', fontdict=font)
+        if i < 1: # save one result
+            if save_pic:
+                save_name = os.path.join(save_dir, '{}_{}'.format(class_name, tag if tag else i))
+                fig_img.savefig(save_name, dpi=100)
+            else:
+                plt.show()
+        plt.close()
+        return

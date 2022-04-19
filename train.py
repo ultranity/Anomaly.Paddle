@@ -84,7 +84,7 @@ def main():
             test_dataset = mvtec.MVTecDataset(args.data_path, class_name=class_name, is_train=False, cropsize=args.crop_size)
             test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size)
             result.append([class_name, *eval(args, model, test_dataloader, class_name)])
-            if args.category == 'all':
+            if args.category in ['all', 'textures', 'objects']:
                 pd.DataFrame(result, columns=csv_columns).set_index('category').to_csv(csv_name)
     if args.eval:
         result = pd.DataFrame(result, columns=csv_columns).set_index('category')

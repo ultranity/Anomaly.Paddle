@@ -12,27 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import cv2
 import os
 from os import path as osp
 import argparse
-import pickle
 import numpy as np
 import random
 from PIL import Image
-from skimage import morphology
-from skimage.segmentation import mark_boundaries
-import matplotlib
-import matplotlib.pyplot as plt
 
 import paddle
-import paddle.nn.functional as F
 from paddle.vision import transforms as T
 
 from paddle import inference
 from paddle.inference import Config, create_predictor
 
 from model import generate_scores_map
+from utils import plot_fig
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -166,65 +160,8 @@ def postprocess(args, test_imgs, class_name, outputs, stats):
     min_score = score_map.min()
     scores = (score_map - min_score) / (max_score - min_score)
     save_name = args.save_path
-    plot_fig(test_imgs, scores, 0.5, save_name, class_name)
+    plot_fig(test_imgs, scores, None, 0.5, save_name, class_name, True, 'infer')
 
-
-def plot_fig(test_img, scores, threshold, save_dir, class_name):
-    num = len(scores)
-    vmax = scores.max() * 255.
-    vmin = scores.min() * 255.
-    for i in range(num):
-        img = test_img[i]
-        img = denormalization(img)
-        heat_map = scores[i] * 255
-        mask = scores[i]
-        mask[mask > threshold] = 1
-        mask[mask <= threshold] = 0
-        kernel = morphology.disk(4)
-        mask = morphology.opening(mask, kernel)
-        mask *= 255
-        vis_img = mark_boundaries(img, mask, color=(1, 0, 0), mode='thick')
-        fig_img, ax_img = plt.subplots(1, 4, figsize=(12, 3))
-        fig_img.subplots_adjust(right=0.9)
-        norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
-        for ax_i in ax_img:
-            ax_i.axes.xaxis.set_visible(False)
-            ax_i.axes.yaxis.set_visible(False)
-        ax_img[0].imshow(img)
-        ax_img[0].title.set_text('Image')
-        ax = ax_img[1].imshow(heat_map, cmap='jet', norm=norm)
-        ax_img[1].imshow(img, cmap='gray', interpolation='none')
-        ax_img[1].imshow(heat_map, cmap='jet', alpha=0.5, interpolation='none')
-        ax_img[1].title.set_text('Predicted heat map')
-        ax_img[2].imshow(mask, cmap='gray')
-        ax_img[2].title.set_text('Predicted mask')
-        ax_img[3].imshow(vis_img)
-        ax_img[3].title.set_text('Segmentation result')
-        left = 0.92
-        bottom = 0.15
-        width = 0.015
-        height = 1 - 2 * bottom
-        rect = [left, bottom, width, height]
-        cbar_ax = fig_img.add_axes(rect)
-        cb = plt.colorbar(ax, shrink=0.6, cax=cbar_ax, fraction=0.046)
-        cb.ax.tick_params(labelsize=8)
-        font = {
-            'family': 'serif',
-            'color': 'black',
-            'weight': 'normal',
-            'size': 8,
-        }
-        cb.set_label('Anomaly Score', fontdict=font)
-        if i < 1:  # save one result
-            fig_img.savefig(os.path.join(save_dir, class_name + '_{}'.format(i)), dpi=100)
-        plt.close()
-
-
-def denormalization(x):
-    mean = np.array([0.485, 0.456, 0.406])
-    std = np.array([0.229, 0.224, 0.225])
-    x = (((x.transpose(1, 2, 0) * std) + mean) * 255.).astype(np.uint8)
-    return x
 
 def main():
     args = parse_args()

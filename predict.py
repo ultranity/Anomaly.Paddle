@@ -4,16 +4,12 @@ import argparse
 import numpy as np
 import datetime
 from PIL import Image
-from skimage import morphology
-from skimage.segmentation import mark_boundaries
-import matplotlib
-import matplotlib.pyplot as plt
 
 import paddle
 
 import datasets.mvtec as mvtec
 from model import PaDiMPlus
-from utils import str2bool
+from utils import plot_fig, str2bool
 
 
 def parse_args():
@@ -82,72 +78,11 @@ def predict(args, model, x):
     dir_name = os.path.dirname(save_name)
     if dir_name and not os.path.exists(dir_name):
         os.makedirs(dir_name)
-    plot_fig(x.numpy(), score_map, args.threshold, save_name, args.category, args.save_pic)
+    plot_fig(x.numpy(), score_map, None, args.threshold, save_name, args.category, args.save_pic, 'predict')
 
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '\t' + "Predict :  Picture {}".format(
         args.picture_path) + " done!")
     if args.save_pic: print("Result saved at {}/{}_predict.png".format(save_name, args.category))
-
-
-
-def denormalization(x):
-    mean = np.array([0.485, 0.456, 0.406])
-    std = np.array([0.229, 0.224, 0.225])
-    x = (((x.transpose(1, 2, 0) * std) + mean) * 255.).astype(np.uint8)
-    return x
-
-def plot_fig(test_img, scores, threshold, save_dir, class_name, save_pic=True):
-    num = len(scores)
-    vmax = scores.max() * 255.
-    vmin = scores.min() * 255.
-    for i in range(1):
-        img = test_img[i]
-        img = denormalization(img)
-        heat_map = scores[i] * 255
-        mask = scores[i]
-        mask[mask > threshold] = 1
-        mask[mask <= threshold] = 0
-        kernel = morphology.disk(4)
-        mask = morphology.opening(mask, kernel)
-        mask *= 255
-        vis_img = mark_boundaries(img, mask, color=(1, 0, 0), mode='thick')
-        fig_img, ax_img = plt.subplots(1, 4, figsize=(12, 3))
-        fig_img.subplots_adjust(right=0.9)
-        norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
-        for ax_i in ax_img:
-            ax_i.axes.xaxis.set_visible(False)
-            ax_i.axes.yaxis.set_visible(False)
-        ax_img[0].imshow(img)
-        ax_img[0].title.set_text('Image')
-        ax = ax_img[1].imshow(heat_map, cmap='jet', norm=norm)
-        ax_img[1].imshow(img, cmap='gray', interpolation='none')
-        ax_img[1].imshow(heat_map, cmap='jet', alpha=0.5, interpolation='none')
-        ax_img[1].title.set_text('Predicted heat map')
-        ax_img[2].imshow(mask, cmap='gray')
-        ax_img[2].title.set_text('Predicted mask')
-        ax_img[3].imshow(vis_img)
-        ax_img[3].title.set_text('Segmentation result')
-        left = 0.92
-        bottom = 0.15
-        width = 0.015
-        height = 1 - 2 * bottom
-        rect = [left, bottom, width, height]
-        cbar_ax = fig_img.add_axes(rect)
-        cb = plt.colorbar(ax, shrink=0.6, cax=cbar_ax, fraction=0.046)
-        cb.ax.tick_params(labelsize=8)
-        font = {
-            'family': 'serif',
-            'color': 'black',
-            'weight': 'normal',
-            'size': 8,
-        }
-        cb.set_label('Anomaly Score', fontdict=font)
-        if save_pic:
-            fig_img.savefig(os.path.join(save_dir, '{}_predict'.format(class_name)), dpi=100)
-        else:
-            plt.show()
-        plt.close()
-
 
 if __name__ == '__main__':
     main()

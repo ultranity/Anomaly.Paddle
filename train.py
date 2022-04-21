@@ -40,10 +40,14 @@ def parse_args():
     parser.add_argument("--inc",  action='store_true', help="use incremental cov & mean")
     parser.add_argument("--eval", action='store_true')
     parser.add_argument('--eval_PRO', action='store_true')
+    parser.add_argument('--non_partial_AUC', action='store_true')
+    parser.add_argument('--eval_threthold_step', type=int, default=500, help="threthold_step when computing PRO Score")
     parser.add_argument('--einsum', action='store_true')
     parser.add_argument('--cpu', action='store_true', help="use cpu device")
     parser.add_argument("--save_model_subfolder", type=str2bool, default=True)
     parser.add_argument("--seed", type=int, default=521)
+    parser.add_argument("--load_projection", type=str, default=None)
+    parser.add_argument("--debug", action='store_true')
     
     args, _ =  parser.parse_known_args()
     return args
@@ -60,7 +64,10 @@ def main():
     if args.cpu: paddle.device.set_device("cpu")
     # build model
     model = PaDiMPlus(arch=args.arch, pretrained=True, fout=args.k, method=args.method)
-    model.init_projection()
+    if args.load_projection:
+        model.projection = paddle.to_tensor(np.load(args.load_projection))
+    else:
+        model.init_projection()
     model.eval()
     #print(model.projection)
     result = []
@@ -86,16 +93,18 @@ def main():
             result.append([class_name, *eval(args, model, test_dataloader, class_name)])
             if args.category in ['all', 'textures', 'objects']:
                 pd.DataFrame(result, columns=csv_columns).set_index('category').to_csv(csv_name)
+        model.clean_stats()
     if args.eval:
         result = pd.DataFrame(result, columns=csv_columns).set_index('category')
         if not args.eval_PRO: del result['PRO_score']
         print("Evaluation result saved at{}:".format(csv_name))
         print(result)
         result.to_csv(csv_name)
-        if args.category == 'all':
-            print("=========Mean Performance========")
+        if args.category in ['all', 'textures', 'objects']:
+            print("===== Category {} Mean Performance ====".format(args.category.upper()))
             print(result.mean(numeric_only=True))
 
+@paddle.no_grad()
 def train(args, model, train_dataloader, class_name):
     epoch_begin = time.time()
     #paddle.device.set_device("gpu")

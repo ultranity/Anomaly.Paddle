@@ -13,7 +13,7 @@ from paddle.io import DataLoader
 
 import datasets.mvtec as mvtec
 from model import PaDiMPlus
-from utils import compute_pro_score, plot_fig, str2bool
+from utils import compute_pro_score, compute_roc_score, plot_fig, str2bool
 
 #CLASS_NAMES = ['bottle', 'cable', 'capsule', 'carpet', 'grid',
 #               'hazelnut', 'leather', 'metal_nut', 'pill', 'screw',
@@ -34,15 +34,17 @@ def parse_args():
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument("--arch", type=str, default='resnet18', help="backbone model arch, one of [resnet18, resnet50, wide_resnet50_2]")
     parser.add_argument("--k", type=int, default=100, help="feature used")
-    parser.add_argument("--method", type=str, default='sample', help="projection method, one of [sample,ortho]")
+    parser.add_argument("--method", type=str, default='sample', help="projection method, one of ['sample','h_sample', 'ortho', 'svd_ortho', 'gaussian']")
     parser.add_argument("--save_pic", type=str2bool, default=True)
     parser.add_argument('--eval_PRO', action='store_true')
+    parser.add_argument('--non_partial_AUC', action='store_true')
+    parser.add_argument('--eval_threthold_step', type=int, default=500, help="threthold_step when computing PRO Score and non_partial_AUC")
     parser.add_argument("--seed", type=int, default=521)
     
     args, _ =  parser.parse_known_args()
     return args
 
-
+@paddle.no_grad()
 def main():
 
     args = parse_args()
@@ -86,15 +88,15 @@ def main():
         print("=========Mean Performance========")
         print(result.mean(numeric_only=True))
 
+@paddle.no_grad()
 def eval(args, model, test_dataloader, class_name):
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '\t' + "Starting eval model...")
-    total_auroc = []
-    total_pixel_auroc = []
 
     gt_list = []
     gt_mask_list = []
     test_imgs = []
     score_map = []
+    paddle.device.set_device("gpu")
     # extract test set features
     for (x, y, mask) in tqdm(test_dataloader, '| feature extraction | test | %s |' % class_name):
 
@@ -117,9 +119,7 @@ def eval(args, model, test_dataloader, class_name):
     img_scores = scores.reshape(scores.shape[0], -1).max(axis=1)
     gt_list = np.asarray(gt_list)
     #fpr, tpr, _ = roc_curve(gt_list, img_scores)
-    img_auroc = roc_auc_score(gt_list, img_scores)
-    total_auroc.append(img_auroc)
-    total_auroc = np.mean(total_auroc)
+    img_auroc = compute_roc_score(gt_list, img_scores, args.eval_threthold_step, args.non_partial_AUC)
     
     # get optimal threshold
     gt_mask = np.asarray(gt_mask_list, dtype=np.int64).squeeze()
@@ -131,19 +131,17 @@ def eval(args, model, test_dataloader, class_name):
 
     # calculate per-pixel level ROCAUC
     #fpr, tpr, _ = roc_curve(gt_mask.flatten(), scores.flatten())
-    per_pixel_auroc = roc_auc_score(gt_mask.flatten(), scores.flatten())
-    total_pixel_auroc.append(per_pixel_auroc)
-    total_pixel_auroc = np.mean(total_pixel_auroc)
+    per_pixel_auroc =  compute_roc_score(gt_mask.flatten(), scores.flatten(), args.eval_threthold_step, args.non_partial_AUC)
     
     # calculate Per-Region-Overlap Score
-    total_PRO = compute_pro_score(scores, gt_mask) if args.eval_PRO else None
+    total_PRO = compute_pro_score(gt_mask, scores, args.eval_threthold_step, args.non_partial_AUC) if args.eval_PRO else None
 
-    print([class_name, total_auroc, total_pixel_auroc, total_PRO])
+    print([class_name, img_auroc, per_pixel_auroc, total_PRO])
     if args.save_pic:
         save_dir = os.path.join(args.save_path, class_name)
         os.makedirs(save_dir, exist_ok=True)
         plot_fig(test_imgs, scores, gt_mask_list, threshold, save_dir, class_name)
-    return total_auroc, total_pixel_auroc, total_PRO
+    return img_auroc, per_pixel_auroc, total_PRO
 
 def plot_roc(fpr, tpr, score, save_dir, class_name, tag='pixel'):
     plt.plot(fpr, tpr, marker="o", color="k", label=f"AUROC Score: {score:.3f}")

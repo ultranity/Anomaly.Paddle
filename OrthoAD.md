@@ -36,7 +36,7 @@ OrthoAD算法在[PaDiM](PaDiM.md)的基础之上对数据降维过程进行了�
 |(k=100)ResNet-18       |0.930961|0.970591|
 |(k=100)Wide ResNet-50-2|0.937419|0.973382|
 |(k=300)Wide ResNet-50-2|0.944810|0.978197|
-
+#### (k=300)Wide ResNet-50-2
 | category   |Image_AUROC|Pixel_AUROC|PRO_score|
 | -------------- | :---: | :----: | :----: |
 | carpet     | 0.998796 | 0.992120 | 0.973557|
@@ -57,8 +57,28 @@ OrthoAD算法在[PaDiM](PaDiM.md)的基础之上对数据降维过程进行了�
 | ---------- |----------|----------|----------|
 | mean       | 0.946072 | 0.978197 | 0.944810 |
 
+测试发现，原作者官方参考repo使用自定义的auroc指标计算方式](./utils.py#compute_roc_score)，其auc计算与普遍使用的sklearn.metrics.roc_auc_score提供的标准auc计算方式结果存在不同，对同一输出预测值实际计算的到的auroc分数偏高。
+与pytorch随机参数对齐后指标对比如下
+| 类别       |自定义auroc |sklearn |
+| --------- | ----- | ------ | 
+carpet     | 0.9919 | 0.9919 |
+grid       | 0.9790 | 0.9751 |
+leather    | 0.9958 | 0.9940 |
+tile       | 0.9553 | 0.9428 |
+wood       | 0.9711 | 0.9517 |
+bottle     | 0.9887 | 0.9865 |
+cable      | 0.9766 | 0.9745 |
+capsule    | 0.9853 | 0.9878 |
+hazelnut   | 0.9914 | 0.9862 |
+metal_nut  | 0.9792 | 0.9781 |
+pill       | 0.9796 | 0.9627 |
+screw      | 0.9859 | 0.9873 |
+toothbrush | 0.9872 | 0.9904 |
+transistor | 0.9796 | 0.9775 |
+zipper     | 0.9876 | 0.9861 |
+平均        | 0.9823| 0.9782 |
 
-达到论文复现验收标准.
+实际达到论文复现验收标准.
 
 训练及预测日志：[PaDiM](./logs/OrthoAD.log)
 
@@ -73,7 +93,7 @@ AIStudio预训练权重：[notebook](https://aistudio.baidu.com/aistudio/project
 
 - 框架：
   
-  - PaddlePaddle >= 2.2.0
+  - PaddlePaddle >= 2.2.2
   
   包依赖参见[requirements.txt](requirements.txt)
   
@@ -114,26 +134,38 @@ arch 指定所用backbone，复现任务为`--arch=wide_resnet50_2`
 k 指定所用特征数量，复现任务为`--k=300`
 save_path指定模型保存路径
 seed 设定随机数种子以便复现
-eval表示是否在训练时评估模型表现
-eval_PRO表示计算PRO score指标(较慢)
+--eval 在训练时评估模型表现
+--eval_PRO 计算PRO score指标(较慢)
+--non_partial_AUC 使用参考repo所用AUC计算方式（结果偏高）而非sklearn.metrics.auc
 
 ####全部训练并验证：
 ```bash
-python train.py --data_path=PATH/TO/MVTec/ --category all --method=ortho --arch=wide_resnet50_2 --k=300 --eval  --eval_PRO
+python train.py --data_path=PATH/TO/MVTec/ --category all --method=ortho --arch=wide_resnet50_2 --k=300 --eval --eval_PRO
 ```
 
 ####单独训练某一类别（以carpet为例）：
 ```bash
-python train.py --data_path=PATH/TO/MVTec/ --category carpet --method=ortho --arch=wide_resnet50_2 --k=300 --eval  --eval_PRO
+python train.py --data_path=PATH/TO/MVTec/ --category carpet --method=ortho --arch=wide_resnet50_2 --k=300 --eval --eval_PRO
 ```
 
 ### 4.2 模型评估
+可用参数：
+category指定数据类别，可用all代表全部类别，objects代表物体类别，textures代表所有纹理类别。
+data_path指定数据集路径**PATH/TO/MVTec**
+method 指定所用算法，PaDiM对应`--method=ortho`
+arch 指定所用backbone，复现任务为`--arch=wide_resnet50_2`
+k 指定所用特征数量，复现任务为`--k=300`
+save_pic设定是否储存输出，否则使用imshow显示（默认save_pic=True,当前plot_fig仅可视化第一张）
+--eval_PRO 计算PRO score指标(较慢)
+--non_partial_AUC 使用参考repo所用AUC计算方式（结果偏高）而非sklearn.metrics.auc
+
+
 ```bash
-python eval.py --data_path=PATH/TO/MVTec/ --category all --method=ortho --arch=wide_resnet50_2 --k=300 --save_pic  --eval_PRO
+python eval.py --data_path=PATH/TO/MVTec/ --category all --method=ortho --arch=wide_resnet50_2 --k=300 --save_pic=True  --eval_PRO
 ```
 也可以指定模型参数路径`--model_path` 及 类别 `--category`
 ```bash
-python eval.py --data_path=PATH/TO/MVTec/ --category carpet --method=ortho --arch=wide_resnet50_2 --k=300 --save_pic  --eval_PRO
+python eval.py --data_path=PATH/TO/MVTec/ --category carpet --method=ortho --arch=wide_resnet50_2 --k=300 --save_pic=True  --eval_PRO
 ```
 
 ![验证](assets/carpet_eval.png)
@@ -141,7 +173,7 @@ python eval.py --data_path=PATH/TO/MVTec/ --category carpet --method=ortho --arc
 ### 4.3 模型预测
 指定单张图片路径，生成预测结果
 ```shell
-python predict.py PATH/TO/MVTec/carpet/test/color/000.png --category carpet --method=ortho --arch=wide_resnet50_2 --k=300 --save_pic
+python predict.py PATH/TO/MVTec/carpet/test/color/000.png --category carpet --method=ortho --arch=wide_resnet50_2 --k=300 --save_pic=True
 ```
 
 输出图像如下：

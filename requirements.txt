@@ -1,4 +1,4 @@
-paddlepaddle>=2.2
+paddlepaddle>=2.2.2
 skimage
 pandas
 numpy

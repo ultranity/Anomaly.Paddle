@@ -64,7 +64,7 @@ AIStudio预训练权重：[notebook](https://aistudio.baidu.com/aistudio/project
 
 - 框架：
   
-  - PaddlePaddle >= 2.2.0
+  - PaddlePaddle >= 2.2.2
   
   包依赖参见[requirements.txt](requirements.txt)
   
@@ -105,7 +105,8 @@ arch 指定所用backbone，复现任务为`--arch=resnet18`
 k 指定所用特征数量，复现任务为`--k=100`
 save_path指定模型保存路径
 seed 设定随机数种子以便复现
-eval表示是否在训练时评估模型表现
+--eval 在训练时评估模型表现
+--eval_PRO 计算PRO score指标(较慢)
 
 ####全部训练并验证：
 ```bash
@@ -118,12 +119,22 @@ python train.py --data_path=PATH/TO/MVTec/ --category carpet --method=sample --a
 ```
 
 ### 4.2 模型评估
+可用参数：
+category指定数据类别，可用all代表全部类别，objects代表物体类别，textures代表所有纹理类别。
+data_path指定数据集路径**PATH/TO/MVTec**
+method 指定所用算法，PaDiM对应`--method=ortho`
+arch 指定所用backbone，复现任务为`--arch=wide_resnet50_2`
+k 指定所用特征数量，复现任务为`--k=300`
+save_pic设定是否储存输出，否则使用imshow显示（默认save_pic=True,当前plot_fig仅可视化第一张）
+--eval 在训练时评估模型表现
+--eval_PRO 计算PRO score指标(较慢)
+
 ```bash
-python eval.py --data_path=PATH/TO/MVTec/ --category all --method=sample --arch=resnet18 --k=100
+python eval.py --data_path=PATH/TO/MVTec/ --category all --method=sample --arch=resnet18 --k=100 --save_pic=True
 ```
 也可以指定模型参数路径`--model_path` 及 类别 `--category`
 ```bash
-python eval.py --data_path=PATH/TO/MVTec/ --category carpet --method=sample --arch=resnet18 --k=100
+python eval.py --data_path=PATH/TO/MVTec/ --category carpet --method=sample --arch=resnet18 --k=100 --save_pic=True
 ```
 ![验证](assets/carpet_eval.png)
 

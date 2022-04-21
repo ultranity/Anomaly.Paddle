@@ -8,7 +8,7 @@ import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 from skimage import measure
-from sklearn.metrics import auc
+from sklearn.metrics import roc_auc_score, roc_curve, auc
 from tqdm import tqdm
 import matplotlib
 import matplotlib.pyplot as plt
@@ -29,17 +29,21 @@ def str2bool(v):
 def rescale(x):
     return (x - x.min()) / (x.max() - x.min())
 
-def cholesky_inverse(input, upper=False, out=None) :
+def cholesky_inverse(input, upper=False, out=None, inplace=True):
     u = paddle.cholesky(input, upper)
-    ui = paddle.linalg.triangular_solve(u, paddle.eye(u.shape[-1]), upper=upper)
+    u = paddle.linalg.triangular_solve(u, paddle.eye(u.shape[-1]), upper=upper)
     if len(u.shape)==2:
-        uit = ui.T
+        uit = u.T
     elif len(u.shape)==3:
-        uit =paddle.transpose(ui, perm=(0, 2, 1))
+        uit =paddle.transpose(u, perm=(0, 2, 1))
     elif len(u.shape)==4:
-        uit = paddle.transpose(ui, perm=(0, 1, 3, 2))
-    out = ui@uit if upper else uit@ui
-    return out
+        uit = paddle.transpose(u, perm=(0, 1, 3, 2))
+    if inplace:
+        input = u@uit if upper else uit@u
+        return input
+    else:
+        out = u@uit if upper else uit@u
+        return out
 
 def mahalanobis(embedding, mean, inv_covariance):
     B,C,H,W = embedding.shape
@@ -55,7 +59,7 @@ def mahalanobis_einsum(embedding, mean, inv_covariance):
     distances = paddle.sqrt(distances)
     return distances
 
-def svd_orthogonal(fin,fout, use_paddle=False):
+def svd_orthogonal(fin, fout, use_paddle=False):
     assert fin > fout, 'fin > fout'
     if use_paddle:
         X = paddle.rand((fout, fin))
@@ -82,26 +86,22 @@ def orthogonal(rows,cols, gain=1):
         >>> orthogonal_(5, 3)
     """
     flattened = paddle.randn((rows,cols))
-
-    if rows < cols:
-        flattened = flattened.T
-
+    if rows < cols: flattened = flattened.T
+    
     # Compute the qr factorization
     q, r = paddle.linalg.qr(flattened)
     # Make Q uniform according to https://arxiv.org/pdf/math-ph/0609050.pdf
     d = paddle.diag(r, 0)
     q *= d.sign()
-
-    if rows < cols:
-        q = q.T
     
+    if rows < cols: q = q.T
     q *= gain
     return q
 
 
-def compute_pro(binary_amaps:np.ndarray, masks:np.ndarray, method='mean') -> float:
+def compute_pro_(y_true:np.ndarray, binary_amaps:np.ndarray, method='mean') -> float:
     pros = []
-    for binary_amap, mask in zip(binary_amaps, masks):
+    for binary_amap, mask in zip(binary_amaps, y_true):
         per_region_tpr = []
         for region in measure.regionprops(measure.label(mask)):
             axes0_ids = region.coords[:, 0]
@@ -138,12 +138,12 @@ def get_thresholds(t:np.ndarray, num_samples=1000, reverse=False, opt=True):
         if reverse: r = r[::-1]
         return r
 
-def compute_pro_score(amaps:np.ndarray, masks:np.ndarray) -> float:
-    masks = masks.squeeze()
+def compute_pro(y_true:np.ndarray, amaps:np.ndarray, steps=500) -> float:
+    y_true = y_true.squeeze()
     
     pros = []
     fprs = []
-    for th in (get_thresholds(amaps, 500, True, True)):#thresholds[::-1]:#
+    for th in tqdm(get_thresholds(amaps, steps, True, True)):#thresholds[::-1]:#
         binary_amaps = amaps.squeeze() > th
         """
         pro = []
@@ -154,9 +154,9 @@ def compute_pro_score(amaps:np.ndarray, masks:np.ndarray) -> float:
                 TP_pixels = binary_amap[axes0_ids, axes1_ids].sum()
                 pro.append(TP_pixels / region.area)
         pros.append(np.mean(pro))"""
-        pros.append(compute_pro(binary_amaps, masks, 'mean'))
+        pros.append(compute_pro_(y_true, binary_amaps, 'mean'))
         
-        inverse_masks = 1 - masks
+        inverse_masks = 1 - y_true
         FP_pixels = np.logical_and(inverse_masks, binary_amaps).sum()
         fpr = FP_pixels / inverse_masks.sum()
         fprs.append(fpr)
@@ -165,10 +165,67 @@ def compute_pro_score(amaps:np.ndarray, masks:np.ndarray) -> float:
     #print(np.array(list(zip(pros,fprs))))
     fprs = np.array(fprs)
     pros = np.array(pros)
-    pro_auc_score = auc(rescale(fprs), rescale(pros)) # pros)#
-    #thi = np.argmax([x[0] for x in df])
-    #return df[thi]
-    return pro_auc_score
+    return fprs, pros
+
+#ported from OrthoAD repo
+def compute_non_partial_auc(fpr, pro, at_fpr=1.0):
+    acut = 0.  # area cut
+    area = 0.  # area all
+    assert 1 < len(pro)
+    assert len(fpr) == len(pro)
+    for i in range(len(fpr)):
+        # calculate bin_size
+        if len(fpr) - 1 != i:
+            fpr_right = fpr[i+1]
+        else:
+            fpr_right = 1.0
+        b_left = (fpr[i] - fpr[i-1]) / 2
+        b_right = (fpr_right - fpr[i]) / 2
+        if 0 == i:  # left-end
+            b = fpr[i] + b_right
+        elif len(fpr) - 1 == i:  # right-end
+            b = b_left + 1. - fpr[i]
+        else:
+            b = b_left + b_right
+        # calculate area
+        if fpr[i] + b_right > at_fpr:
+            b_cut = max(0, at_fpr - fpr[i] + b_left)  # bin cut
+            acut += b_cut * pro[i]
+        else:
+            acut += b * pro[i]
+        area += b * pro[i]
+    return acut / at_fpr
+
+def compute_roc(y_true:np.ndarray, amaps:np.ndarray, steps=500) -> float:
+    y_true = y_true.squeeze()
+    
+    tprs = []
+    fprs = []
+    for th in tqdm(get_thresholds(amaps, steps, True, True)):#thresholds[::-1]:#
+        binary_amaps = amaps.squeeze() > th
+        TP_pixels = np.logical_and(y_true, binary_amaps).sum()
+        tpr = TP_pixels / y_true.sum()
+        tprs.append(tpr)
+        
+        inverse_masks = 1 - y_true
+        FP_pixels = np.logical_and(inverse_masks, binary_amaps).sum()
+        fpr = FP_pixels / inverse_masks.sum()
+        fprs.append(fpr)
+        
+    #print(np.array(list(zip(pros,fprs))))
+    fprs = np.array(fprs)
+    tprs = np.array(tprs)
+    return fprs, tprs
+
+def compute_pro_score(y_true:np.ndarray, amaps:np.ndarray, steps=500, non_partial_AUC=False) -> float:
+    fprs, pros = compute_pro(y_true, amaps, steps)
+    return compute_non_partial_auc(rescale(fprs), rescale(pros)) if non_partial_AUC else auc(rescale(fprs), rescale(pros))#compute_non_partial_auc(fprs, rescale(pros), 0.3)
+
+def compute_roc_score(y_true:np.ndarray, amaps:np.ndarray, steps=500, non_partial_AUC=False) -> float:
+    #fprs, tprs = compute_roc(masks, amaps, steps)
+    fprs, tprs, thresholds = roc_curve(y_true, amaps)
+    return compute_non_partial_auc(fprs, tprs) if non_partial_AUC else auc(fprs, tprs)
+
 
 
 def denormalization(x):

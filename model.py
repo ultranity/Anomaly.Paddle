@@ -52,6 +52,7 @@ class PaDiMPlus(nn.Layer):
         self.model = models[arch](pretrained)
         del self.model.layer4, self.model.fc , self.model.avgpool
         self.model.eval()
+        print(f'model {arch}, nParams {sum([w.size for w in self.model.parameters()])}')
         self.arch = arch
         self.method = method
         self.fin = fins[arch]
@@ -63,6 +64,10 @@ class PaDiMPlus(nn.Layer):
         
     def init_projection(self):
         self.projection = get_projection(fins[self.arch], self.k, self.method)
+    
+    def clean_stats(self):
+        self.mean = None
+        self.inv_covariance = None
     
     def set_dist_params(self, mean, inv_cov):
         self.mean, self.inv_covariance = mean, inv_cov

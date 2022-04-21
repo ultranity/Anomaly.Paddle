@@ -29,8 +29,10 @@ fins = {"resnet18":448,"resnet50":1792,
 
 def get_projection(fin, fout, method='ortho'):
     if 'sample' == method:
-        s = paddle.randperm(fin)[:fout].tolist()
-        W = paddle.eye(fin)[s].T
+        W = paddle.randperm(fin)[:fout]
+        #W = paddle.eye(fin)[W.tolist()].T
+    elif 'coreset' == method:
+        W = paddle.randperm(fin)[:fout]
     elif 'h_sample' == method:
         s = paddle.randperm(fin//7)[:fout//3].tolist()\
                 +(fin//7+paddle.randperm(fin//7*2)[:fout//3]).tolist()\
@@ -46,7 +48,7 @@ def get_projection(fin, fout, method='ortho'):
 
 class PaDiMPlus(nn.Layer):
     def __init__(self, arch='resnet18', pretrained=True, fout=100, method = 'sample'):
-        super(PaDiMPlus, self).__init__()
+        super().__init__()
         assert arch in models.keys(), 'arch {} not supported'.format(arch)
         
         self.model = models[arch](pretrained)
@@ -81,14 +83,26 @@ class PaDiMPlus(nn.Layer):
         #    return paddle.index_select(embedding,  self.projection, 1)
     
     @paddle.no_grad()
-    def project(self, x):
+    def project(self, x, return_HWBC=False):
         B, C, H, W = x.shape
-        x = x.reshape((B, C, H*W))
-        result = paddle.zeros((B, self.k, H, W))
-        for i in range(B):
-            #result[i] = paddle.einsum('chw, cd -> dhw', x[i], self.projection)
-            result[i] = (self.projection.T @ x[i]).reshape((self.k, H, W))
-        return result
+        if len(self.projection.shape)==1:
+            x=paddle.index_select(x, self.projection, 1)
+            if return_HWBC: x = x.transpose((2,3,0,1))
+            return x
+        else:
+            if return_HWBC:
+                x = x.transpose((2,3,0,1))
+                return x@self.projection
+                result = paddle.zeros((B, self.k, H, W))
+                for i in range(H):
+                    #result[i] = paddle.einsum('chw, cd -> dhw', x[i], self.projection)
+                    result[i,:,:,:] = x[i] @self.projection.T
+            result = paddle.zeros((B, self.k, H, W))
+            x = x.reshape((B, C, H*W))
+            for i in range(B):
+                #result[i] = paddle.einsum('chw, cd -> dhw', x[i], self.projection)
+                result[i] = (self.projection.T @ x[i]).reshape((self.k, H, W))
+            return result
     
     @paddle.no_grad()
     def forward_res(self, x):
@@ -108,15 +122,20 @@ class PaDiMPlus(nn.Layer):
     
     @paddle.no_grad()
     def forward(self, x):
+        res = []
         x = self.model.conv1(x)
         x = self.model.bn1(x)
         x = self.model.relu(x)
         x = self.model.maxpool(x)
-        x = [self.model.layer1(x).detach()]
-        x.append(self.model.layer2(x[-1]).detach())
-        x.append(self.model.layer3(x[-1]).detach())
-        x[-2]=F.interpolate(x[-2], size=x[0].shape[-2:], mode="nearest")
-        x[-1]=F.interpolate(x[-1], size=x[0].shape[-2:], mode="nearest")
+        x = self.model.layer1(x)
+        res.append(x)
+        x = self.model.layer2(x)
+        res.append(x)
+        x = self.model.layer3(x)
+        res.append(x)
+        x = res
+        for i in range(1,len(x)):
+            x[i] = F.interpolate(x[i], scale_factor=2**i, mode="nearest")
         #print([i.shape for i in x])
         x = paddle.concat(x, 1)
         #x = self.project(x)
@@ -127,7 +146,7 @@ class PaDiMPlus(nn.Layer):
         return self.generate_scores_map(self.get_embedding(x), x.shape)
     
     @paddle.no_grad()
-    def compute_distribution_einsum(self, outs):
+    def compute_stats_einsum(self, outs):
         # calculate multivariate Gaussian distribution
         B, C, H, W = outs.shape
         mean = outs.mean(0)  # mean chw
@@ -136,19 +155,19 @@ class PaDiMPlus(nn.Layer):
         self.compute_inv(mean, cov)
     
     @paddle.no_grad()
-    def compute_distribution_(self, embedding):
+    def compute_stats_(self, embedding):
         # calculate multivariate Gaussian distribution
         B, C, H, W = embedding.shape
         mean = paddle.mean(embedding, axis=0)
         embedding = embedding.reshape((B, C, H * W))
         cov = np.empty((C, C, H * W))
-        for i in range(H * W):
+        for i in tqdm(range(H * W)):
             cov[:, :, i] = np.cov(embedding[:, :, i].numpy(), rowvar=False)
         cov = paddle.to_tensor(cov.reshape(C,C,H,W).transpose((2,3, 0, 1)))
         self.compute_inv(mean, cov)
     
     @paddle.no_grad()
-    def compute_distribution_np(self, embedding):
+    def compute_stats_np(self, embedding):
         # calculate multivariate Gaussian distribution
         B, C, H, W = embedding.shape
         mean = paddle.mean(embedding, axis=0)
@@ -156,12 +175,12 @@ class PaDiMPlus(nn.Layer):
         inv_covariance = np.empty((H * W, C, C), dtype='float32')
         I = np.identity(C)
         for i in tqdm(range(H * W)):
-            inv_covariance[i, :, :] = np.linalg.inv(np.cov(embedding[:, :, i], rowvar=False)  + 0.01 * I)
+            inv_covariance[i,:,:] = np.linalg.inv(np.cov(embedding[:, :, i], rowvar=False)  + 0.01 * I)
         inv_covariance = paddle.to_tensor(inv_covariance.reshape(H,W,C,C)).astype('float32')
         self.set_dist_params(mean, inv_covariance)
     
     @paddle.no_grad()
-    def compute_distribution(self, embedding):
+    def compute_stats(self, embedding):
         # calculate multivariate Gaussian distribution
         B, C, H, W = embedding.shape
         mean = paddle.mean(embedding, axis=0)
@@ -169,61 +188,56 @@ class PaDiMPlus(nn.Layer):
         embedding = embedding.transpose((2, 3, 0, 1)) #hwbc
         inv_covariance = paddle.zeros((H, W, C, C), dtype='float32')
         I = paddle.eye(C)
-        for i in (range(H)):
-            inv_covariance[i, :, :, :] = paddle.einsum('wbc, wbd -> wcd',embedding[i],embedding[i])/(B-1) + 0.01*I
-            inv_covariance[i, :, :, :] = cholesky_inverse(inv_covariance[i, :, :, :])
+        for i in tqdm(range(H), desc='compute distribution stats'):
+            inv_covariance[i,:,:,:] = paddle.einsum('wbc, wbd -> wcd',embedding[i],embedding[i])/(B-1) + 0.01*I
+            inv_covariance[i,:,:,:] = paddle.inverse(inv_covariance[i,:,:,:])#cholesky_inverse(inv_covariance[i])
         inv_covariance = paddle.to_tensor(inv_covariance.reshape((H,W,C,C))).astype('float32')
         self.set_dist_params(mean, inv_covariance)
     
     @paddle.no_grad()
-    def compute_distribution_incremental(self, outs):
+    def compute_stats_incremental(self, outs):
         # calculate multivariate Gaussian distribution
         B, C, H, W = outs.shape
         mean = outs.sum(0)  # mean chw
-        cov = paddle.einsum('bchw, bdhw -> hwcd', outs, outs)# covariance hwcc
+        outs = outs.transpose((2, 3, 0, 1)) #hwbc
+        #cov = paddle.einsum('bchw, bdhw -> hwcd', outs, outs)# covariance hwcc
+        cov = paddle.zeros((H, W, C, C), dtype='float32')
+        for i in range(H):
+            cov[i,:,:,:] = paddle.einsum('wbc, wbd -> wcd',outs[i],outs[i])
         return mean, cov, B
     
     def compute_inv_incremental(self,mean, covariance, B, eps=0.01):
         c = mean.shape[0]
         #if self.inv_covariance == None:
-        mean = mean/B # chw
+        mean/=B # hwc
+        covariance/=B
         #covariance hwcc  #.transpose((2,3, 0, 1)))
-        covariance = (covariance - B*paddle.einsum('chw, dhw -> hwcd', mean, mean))/(B-1) # covariance hwcc
-        inv_covariance = cholesky_inverse(covariance + eps * paddle.eye(c))
-        #self.inv_covariance = paddle.linalg.inv(covariance)
-        self.set_dist_params(mean, inv_covariance)
+        covariance -= paddle.einsum('hwc, hwd -> hwcd', mean, mean)
+        #covariance = (covariance - B*paddle.einsum('chw, dhw -> hwcd', mean, mean))/(B-1)
+        self.compute_inv(mean.transpose((2,0,1)), covariance)
     
-    def compute_inv(self,mean, covariance, eps=0.01):
+    def compute_inv_(self,mean, covariance, eps=0.01):
         c = mean.shape[0]
         #if self.inv_covariance == None:
         #covariance hwcc  #.transpose((2,3, 0, 1)))
         #self.inv_covariance = paddle.linalg.inv(covariance)
         self.set_dist_params(mean, cholesky_inverse(covariance + eps * paddle.eye(c)))
     
+    def compute_inv(self,mean, covariance, eps=0.01):
+        c, H, W = mean.shape
+        for i in tqdm(range(H), desc='compute inverse covariance'):
+            covariance[i,:,:,:] = cholesky_inverse(covariance[i,:,:,:] + eps * paddle.eye(c))
+        self.set_dist_params(mean, covariance)
+    
     def generate_scores_map(self, embedding, out_shape, gaussian_blur = True):
-        # calculate distance matrix
-        B, C, H, W = embedding.shape
-        #embedding = embedding.reshape((B, C, H * W))
-        # calculate mahalanobis distances
-        
-        distances = mahalanobis_einsum(embedding, self.mean, self.inv_covariance)
-        score_map = F.interpolate(distances.unsqueeze(1), size=out_shape, mode='bilinear',
-                                align_corners=False).squeeze(1).numpy()
-
-        if gaussian_blur:
-            # apply gaussian smoothing on the score map
-            for i in range(score_map.shape[0]):
-                score_map[i] = gaussian_filter(score_map[i], sigma=4)
-
-        return score_map
-
+        return generate_scores_map(self.mean, self.inv_covariance, embedding, out_shape, gaussian_blur)
 
 def generate_scores_map(mean, inv_covariance, embedding, out_shape, gaussian_blur = True):
     # calculate distance matrix
     B, C, H, W = embedding.shape
     #embedding = embedding.reshape((B, C, H * W))
-    # calculate mahalanobis distances
     
+    # calculate mahalanobis distances
     distances = mahalanobis_einsum(embedding, mean, inv_covariance)
     score_map = F.interpolate(distances.unsqueeze(1), size=out_shape, mode='bilinear',
                             align_corners=False).squeeze(1).numpy()

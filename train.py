@@ -107,24 +107,26 @@ def main():
 @paddle.no_grad()
 def train(args, model, train_dataloader, class_name):
     epoch_begin = time.time()
-    #paddle.device.set_device("gpu")
-    # extract train set features
     
+    #paddle.device.set_device("gpu")
+    
+    # extract train set features
     if args.inc:
         c = model.k #args.k
         h = w = args.crop_size//4
         X_cov = paddle.zeros([h, w, c, c])  # covariance
-        X_mean = paddle.zeros([c, h, w])  # mean
+        X_mean = paddle.zeros([h, w, c])  # mean
         N = 0 # sample num
         for (x,_) in tqdm(train_dataloader, '| feature extraction | train | %s |' % class_name):
             # model prediction
             out = model(x)
-            out = model.project(out)
-            X_mean += out.sum(0)
-            X_cov += paddle.einsum('bchw, bdhw -> hwcd', out, out)
+            out = model.project(out, True) #hwbc
             N += x.shape[0]
+            X_mean += out.sum(2)
+            #X_cov += paddle.einsum('bchw, bdhw -> hwcd', out, out)
+            for i in range(h):
+                X_cov[i,:,:,:] += paddle.einsum('wbc, wbd -> wcd',out[i,:,:,:],out[i,:,:,:])
         del out, x
-        model.compute_inv_incremental(X_mean, X_cov, N)
     else:
         outs = []
         for (x,_) in tqdm(train_dataloader, '| feature extraction | train | %s |' % class_name):
@@ -134,11 +136,16 @@ def train(args, model, train_dataloader, class_name):
             outs.append(out)
         del out, x
         outs = paddle.concat(outs, 0)
-        #paddle.device.set_device("cpu")
+    
+    #paddle.device.set_device("cpu")
+    if args.inc:
+        model.compute_inv_incremental(X_mean, X_cov, N)
+    else:
         if args.einsum:
-            model.compute_distribution_einsum(outs)
+            model.compute_stats_einsum(outs)
         else:
-            model.compute_distribution(outs)
+            model.compute_stats(outs)
+        del outs
     
     t = time.time() - epoch_begin
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '\t' +

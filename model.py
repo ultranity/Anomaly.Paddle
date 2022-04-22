@@ -103,15 +103,20 @@ class PaDiMPlus(nn.Layer):
             if return_HWBC:
                 x = x.transpose((2,3,0,1))
                 return x@self.projection
-                result = paddle.zeros((B, self.k, H, W))
+                result = []#paddle.zeros((B, self.k, H, W))
                 for i in range(H):
                     #result[i] = paddle.einsum('chw, cd -> dhw', x[i], self.projection)
-                    result[i,:,:,:] = x[i] @self.projection.T
-            result = paddle.zeros((B, self.k, H, W))
+                    #result[i,:,:,:] = x[i] @self.projection.T
+                    result.append(x[i] @self.projection.T)
+                result = paddle.stack(result)
+                return result
+            result = [] #paddle.zeros((B, self.k, H, W))
             x = x.reshape((B, C, H*W))
             for i in range(B):
                 #result[i] = paddle.einsum('chw, cd -> dhw', x[i], self.projection)
-                result[i] = (self.projection.T @ x[i]).reshape((self.k, H, W))
+                #result[i] = (self.projection.T @ x[i]).reshape((self.k, H, W))
+                result.append((self.projection.T @ x[i]).reshape((self.k, H, W)))
+            result = paddle.stack(result)
             return result
     
     @paddle.no_grad()
@@ -196,12 +201,12 @@ class PaDiMPlus(nn.Layer):
         mean = paddle.mean(embedding, axis=0)
         embedding -= mean
         embedding = embedding.transpose((2, 3, 0, 1)) #hwbc
-        inv_covariance = paddle.zeros((H, W, C, C), dtype='float32')
+        inv_covariance = []#paddle.zeros((H, W, C, C), dtype='float32')
         I = paddle.eye(C)
         for i in tqdm(range(H), desc='compute distribution stats'):
-            inv_covariance[i,:,:,:] = paddle.einsum('wbc, wbd -> wcd',embedding[i],embedding[i])/(B-1) + 0.01*I
-            inv_covariance[i,:,:,:] = paddle.inverse(inv_covariance[i,:,:,:])#cholesky_inverse(inv_covariance[i])
-        inv_covariance = paddle.to_tensor(inv_covariance.reshape((H,W,C,C))).astype('float32')
+            inv_covariance.append(paddle.einsum('wbc, wbd -> wcd',embedding[i],embedding[i])/(B-1) + 0.01*I)
+            inv_covariance[-1] = cholesky_inverse(inv_covariance[-1])#paddle.inverse(inv_covariance[-1])#
+        inv_covariance = paddle.stack(inv_covariance).reshape((H,W,C,C)).astype('float32')
         self.set_dist_params(mean, inv_covariance)
     
     @paddle.no_grad()
@@ -344,10 +349,10 @@ class PatchCore(PaDiMPlus):
         """
         B, HW, C = embedding.shape
         n_coreset = self.memory_bank.shape[0]
-        distances = paddle.zeros((B, HW, n_coreset))
+        distances = []#paddle.zeros((B, HW, n_coreset))
         for i in range(B):
-            distances[i,:,:] = cdist(embedding[i,:,:], self.memory_bank, p=2.0)  # euclidean norm
-        # BHW*C
+            distances.append(cdist(embedding[i,:,:], self.memory_bank, p=2.0))  # euclidean norm
+        distances = paddle.stack(distances, 0)
         distances, _ = distances.topk(k=n_neighbors, axis=-1, largest=False)
         return distances #B,
 

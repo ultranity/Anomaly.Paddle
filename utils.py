@@ -104,10 +104,15 @@ def cdist(X, Y, p=2.0):
     R, C = Y.shape 
     #3d B, P, C = X.shape|1, R, C = Y.shape -> B, P,R
     #D = paddle.linalg.norm(X[:, None, :]-Y[None, :, :], axis=-1)
-    D = paddle.zeros((P, R))
+    """D = paddle.zeros((P, R))
     for i in range(P):
         D[i,:] = paddle.linalg.norm(X[i, None, :]-Y, axis=-1)
         #D[i,:] = (X[i, None, :]-Y).square().sum(-1).sqrt()
+    #"""
+    D = []
+    for i in range(P):
+        D.append(paddle.linalg.norm(X[i, None, :]-Y, axis=-1))
+    D= paddle.stack(D, 0)
     return D
 
 def compute_pro_(y_true:np.ndarray, binary_amaps:np.ndarray, method='mean') -> float:

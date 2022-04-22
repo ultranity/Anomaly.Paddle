@@ -1,6 +1,6 @@
 import os
 from PIL import Image
-
+import numpy as np
 import paddle
 from paddle.io import Dataset
 from paddle.vision import transforms as T
@@ -18,15 +18,25 @@ CLASS_NAMES = textures+objects
 
 class MVTecDataset(Dataset):
     @staticmethod
-    def get_transform(resize=256, cropsize=256):
-        transform_x = T.Compose([T.Resize(resize),
-                                        T.CenterCrop(cropsize),
-                                        T.ToTensor(),
-                                        T.Normalize(mean=[0.485, 0.456, 0.406],
-                                                    std=[0.229, 0.224, 0.225])])
-        transform_mask = T.Compose([T.Resize(resize),
+    def get_transform(resize=256, cropsize=256, pre_size=None):
+        if pre_size:
+            transform_x = T.Compose([T.Resize(pre_size),T.Resize(resize),
                                             T.CenterCrop(cropsize),
-                                        T.ToTensor()])
+                                            T.ToTensor(),
+                                            T.Normalize(mean=[0.485, 0.456, 0.406],
+                                                        std=[0.229, 0.224, 0.225])])
+            transform_mask = T.Compose([T.Resize(pre_size),T.Resize(resize),
+                                            T.CenterCrop(cropsize),
+                                            T.ToTensor()])
+        else:
+            transform_x = T.Compose([T.Resize(resize),
+                                            T.CenterCrop(cropsize),
+                                            T.ToTensor(),
+                                            T.Normalize(mean=[0.485, 0.456, 0.406],
+                                                        std=[0.229, 0.224, 0.225])])
+            transform_mask = T.Compose([T.Resize(resize),
+                                            T.CenterCrop(cropsize),
+                                            T.ToTensor()])
         return transform_x, transform_mask
 
     def __init__(self, dataset_root_path='/root/data/mvtec', class_name='bottle', is_train=True,
@@ -50,7 +60,7 @@ class MVTecDataset(Dataset):
         x, y, mask = self.x[idx], self.y[idx], self.mask[idx]
 
         x = Image.open(x).convert('RGB')
-        x = self.transform_x(x)
+        x = self.transform_x(np.array(x))
         if self.is_train:
             return x, y
         

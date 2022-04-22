@@ -12,7 +12,7 @@ import paddle
 from paddle.io import DataLoader
 
 import datasets.mvtec as mvtec
-from model import PaDiMPlus
+from model import get_model
 from utils import compute_pro_score, compute_roc_score, plot_fig, str2bool
 
 #CLASS_NAMES = ['bottle', 'cable', 'capsule', 'carpet', 'grid',
@@ -31,10 +31,11 @@ def parse_args():
     parser.add_argument('--model_path', type=str, default=None)
     parser.add_argument("--category", type=str , default='tile', help="category name for MvTec AD dataset")
     parser.add_argument('--crop_size', type=int, default=256)
-    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--batch_size', type=int, default=1)
+    parser.add_argument('--test_batch_size', type=int, default=1)
     parser.add_argument("--arch", type=str, default='resnet18', help="backbone model arch, one of [resnet18, resnet50, wide_resnet50_2]")
     parser.add_argument("--k", type=int, default=100, help="feature used")
-    parser.add_argument("--method", type=str, default='sample', help="projection method, one of ['sample','h_sample', 'ortho', 'svd_ortho', 'gaussian']")
+    parser.add_argument("--method", type=str, default='coreset', help="projection method, one of ['sample','h_sample', 'ortho', 'svd_ortho', 'gaussian']")
     parser.add_argument("--save_pic", type=str2bool, default=True)
     parser.add_argument('--eval_PRO', action='store_true')
     parser.add_argument('--non_partial_AUC', action='store_true')
@@ -49,6 +50,7 @@ def main():
 
     args = parse_args()
     args.save_path += f"/{args.method}_{args.arch}_{args.k}"
+    #if args.method =='coreset': args.test_batch_size=1
     print(args)
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -60,22 +62,20 @@ def main():
     csv_columns = ['category','Image_AUROC','Pixel_AUROC', 'PRO_score']
     csv_name = os.path.join(args.save_path, '{}_seed{}.csv'.format(args.category, args.seed))
     for i,class_name in enumerate(class_names):
-        print("Testing model {}/{} for {}".format(i, len(class_names), class_name))
+        print("Testing model {}/{} for {}".format(i+1, len(class_names), class_name))
         
         # build model
         model_path = args.model_path or args.save_path + '/{}.pdparams'.format(class_name)
-        model = PaDiMPlus(arch=args.arch, pretrained=False, fout=args.k, method= args.method)
+        model = get_model(args.method)(arch=args.arch, pretrained=False, fout=args.k, method= args.method)
         state = paddle.load(model_path)
         model.model.set_dict(state["params"])
-        model.projection = state["projection"]
-        model.mean = state["mean"]
-        model.inv_covariance = state["inv_covariance"]
+        model.load(state["stats"])
         model.eval()
         #model.compute_inv(state["stats"])
         
         # build datasets
         test_dataset = mvtec.MVTecDataset(args.data_path, class_name=class_name, is_train=False, cropsize=args.crop_size)
-        test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size)
+        test_dataloader = DataLoader(test_dataset, batch_size=args.test_batch_size)
         result.append([class_name, *eval(args, model, test_dataloader, class_name)])
         if args.category == 'all':
             pd.DataFrame(result, columns=csv_columns).set_index('category').to_csv(csv_name)
@@ -96,7 +96,7 @@ def eval(args, model, test_dataloader, class_name):
     gt_mask_list = []
     test_imgs = []
     score_map = []
-    paddle.device.set_device("gpu")
+    #paddle.device.set_device("gpu")
     # extract test set features
     for (x, y, mask) in tqdm(test_dataloader, '| feature extraction | test | %s |' % class_name):
 
@@ -108,39 +108,45 @@ def eval(args, model, test_dataloader, class_name):
         out = model.project(out)
         score_map.append(model.generate_scores_map(out, x.shape[-2:]))
     del out
+    score_map, image_score = list(zip(*score_map))
     score_map = np.concatenate(score_map, 0)
+    image_score = np.concatenate(image_score, 0)
     
     # Normalization
     max_score = score_map.max()
     min_score = score_map.min()
-    scores = (score_map - min_score) / (max_score - min_score)
+    score_map = (score_map - min_score) / (max_score - min_score)
 
     # calculate image-level ROC AUC score
-    img_scores = scores.reshape(scores.shape[0], -1).max(axis=1)
     gt_list = np.asarray(gt_list)
-    #fpr, tpr, _ = roc_curve(gt_list, img_scores)
-    img_auroc = compute_roc_score(gt_list, img_scores, args.eval_threthold_step, args.non_partial_AUC)
-    
+    #fpr, tpr, _ = roc_curve(gt_list, image_score)
+    img_auroc = compute_roc_score(gt_list, image_score, args.eval_threthold_step, args.non_partial_AUC)
     # get optimal threshold
-    gt_mask = np.asarray(gt_mask_list, dtype=np.int64).squeeze()
-    precision, recall, thresholds = precision_recall_curve(gt_mask.flatten(), scores.flatten())
+    precision, recall, thresholds = precision_recall_curve(gt_list, image_score)
     a = 2 * precision * recall
     b = precision + recall
     f1 = np.divide(a, b, out=np.zeros_like(a), where=b != 0)
     threshold = thresholds[np.argmax(f1)]
-
+    
     # calculate per-pixel level ROCAUC
+    gt_mask = np.asarray(gt_mask_list, dtype=np.int64).squeeze()
     #fpr, tpr, _ = roc_curve(gt_mask.flatten(), scores.flatten())
-    per_pixel_auroc =  compute_roc_score(gt_mask.flatten(), scores.flatten(), args.eval_threthold_step, args.non_partial_AUC)
+    per_pixel_auroc =  compute_roc_score(gt_mask.flatten(), score_map.flatten(), args.eval_threthold_step, args.non_partial_AUC)
+    # get optimal threshold
+    precision, recall, thresholds = precision_recall_curve(gt_mask.flatten(), score_map.flatten())
+    a = 2 * precision * recall
+    b = precision + recall
+    f1 = np.divide(a, b, out=np.zeros_like(a), where=b != 0)
+    threshold = thresholds[np.argmax(f1)]
     
     # calculate Per-Region-Overlap Score
-    total_PRO = compute_pro_score(gt_mask, scores, args.eval_threthold_step, args.non_partial_AUC) if args.eval_PRO else None
+    total_PRO = compute_pro_score(gt_mask, score_map, args.eval_threthold_step, args.non_partial_AUC) if args.eval_PRO else None
 
     print([class_name, img_auroc, per_pixel_auroc, total_PRO])
     if args.save_pic:
         save_dir = os.path.join(args.save_path, class_name)
         os.makedirs(save_dir, exist_ok=True)
-        plot_fig(test_imgs, scores, gt_mask_list, threshold, save_dir, class_name)
+        plot_fig(test_imgs, score_map, gt_mask_list, threshold, save_dir, class_name)
     return img_auroc, per_pixel_auroc, total_PRO
 
 def plot_roc(fpr, tpr, score, save_dir, class_name, tag='pixel'):

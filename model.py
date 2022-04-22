@@ -16,10 +16,11 @@ import numpy as np
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
-from paddle.vision.models.resnet import resnet18, resnet50
-from net import wide_resnet50_2
+#from paddle.vision.models.resnet import resnet18, resnet50
+from k_center_greedy import KCenterGreedy
+from net import resnet18, resnet50, wide_resnet50_2
 from scipy.ndimage import gaussian_filter
-from utils import cholesky_inverse, mahalanobis, mahalanobis_einsum, orthogonal, svd_orthogonal
+from utils import cdist, cholesky_inverse, mahalanobis, mahalanobis_einsum, orthogonal, svd_orthogonal
 from tqdm import tqdm
 models = {"resnet18":resnet18,"resnet50":resnet50,
           #"resnet18_vd":resnet18_vd,
@@ -32,7 +33,7 @@ def get_projection(fin, fout, method='ortho'):
         W = paddle.randperm(fin)[:fout]
         #W = paddle.eye(fin)[W.tolist()].T
     elif 'coreset' == method:
-        W = paddle.randperm(fin)[:fout]
+        W = None
     elif 'h_sample' == method:
         s = paddle.randperm(fin//7)[:fout//3].tolist()\
                 +(fin//7+paddle.randperm(fin//7*2)[:fout//3]).tolist()\
@@ -60,16 +61,23 @@ class PaDiMPlus(nn.Layer):
         self.fin = fins[arch]
         self.k = fout
         self.projection = None
-        self.mean = None
-        self.inv_covariance = None
-        #self.cov = None
-        
+        self.reset_stats()
+    
     def init_projection(self):
         self.projection = get_projection(fins[self.arch], self.k, self.method)
     
-    def clean_stats(self):
-        self.mean = None
-        self.inv_covariance = None
+    def load(self, state):
+        self.mean = state['mean']
+        self.inv_covariance = state['inv_covariance']
+        self.projection = state['projection']
+    
+    def reset_stats(self, set_None=True):
+        if set_None:
+            self.mean = None
+            self.inv_covariance = None
+        else:
+            self.mean = paddle.zeros_like(self.mean)
+            self.inv_covariance = paddle.zeros_like(self.inv_covariance)
     
     def set_dist_params(self, mean, inv_cov):
         self.mean, self.inv_covariance = mean, inv_cov
@@ -84,6 +92,8 @@ class PaDiMPlus(nn.Layer):
     
     @paddle.no_grad()
     def project(self, x, return_HWBC=False):
+        if isinstance(self.projection, type(None)):
+            return x.transpose((2,3,0,1)) if return_HWBC else x
         B, C, H, W = x.shape
         if len(self.projection.shape)==1:
             x=paddle.index_select(x, self.projection, 1)
@@ -195,26 +205,28 @@ class PaDiMPlus(nn.Layer):
         self.set_dist_params(mean, inv_covariance)
     
     @paddle.no_grad()
-    def compute_stats_incremental(self, outs):
+    def compute_stats_incremental(self, out):
         # calculate multivariate Gaussian distribution
-        B, C, H, W = outs.shape
-        mean = outs.sum(0)  # mean chw
-        outs = outs.transpose((2, 3, 0, 1)) #hwbc
+        H, W, B, C = out.shape
+        if isinstance(self.inv_covariance, type(None)):
+            self.mean = paddle.zeros((H, W, C), dtype='float32')
+            self.inv_covariance = paddle.zeros((H, W, C, C), dtype='float32')
+
+        self.mean += out.sum(2)  # mean hwc
         #cov = paddle.einsum('bchw, bdhw -> hwcd', outs, outs)# covariance hwcc
-        cov = paddle.zeros((H, W, C, C), dtype='float32')
         for i in range(H):
-            cov[i,:,:,:] = paddle.einsum('wbc, wbd -> wcd',outs[i],outs[i])
-        return mean, cov, B
+            self.inv_covariance[i,:,:,:] += paddle.einsum('wbc, wbd -> wcd',out[i,:,:,:],out[i,:,:,:])
+        #return mean, cov, B
     
-    def compute_inv_incremental(self,mean, covariance, B, eps=0.01):
-        c = mean.shape[0]
+    def compute_inv_incremental(self, B, eps=0.01):
+        c = self.mean.shape[0]
         #if self.inv_covariance == None:
-        mean/=B # hwc
-        covariance/=B
+        self.mean/=B # hwc
+        self.inv_covariance/=B
         #covariance hwcc  #.transpose((2,3, 0, 1)))
-        covariance -= paddle.einsum('hwc, hwd -> hwcd', mean, mean)
+        self.inv_covariance -= paddle.einsum('hwc, hwd -> hwcd', self.mean, self.mean)
         #covariance = (covariance - B*paddle.einsum('chw, dhw -> hwcd', mean, mean))/(B-1)
-        self.compute_inv(mean.transpose((2,0,1)), covariance)
+        self.compute_inv(self.mean.transpose((2,0,1)), self.inv_covariance, eps)
     
     def compute_inv_(self,mean, covariance, eps=0.01):
         c = mean.shape[0]
@@ -230,16 +242,128 @@ class PaDiMPlus(nn.Layer):
         self.set_dist_params(mean, covariance)
     
     def generate_scores_map(self, embedding, out_shape, gaussian_blur = True):
-        return generate_scores_map(self.mean, self.inv_covariance, embedding, out_shape, gaussian_blur)
+        # calculate distance matrix
+        #B, C, H, W = embedding.shape
+        #embedding = embedding.reshape((B, C, H * W))
+        
+        # calculate mahalanobis distances
+        distances = mahalanobis_einsum(embedding, self.mean, self.inv_covariance)
+        score_map = generate_scores_map(distances, embedding, out_shape, gaussian_blur)
+        img_score = score_map.reshape(score_map.shape[0], -1).max(axis=1)
+        return score_map, img_score
+        return 
 
-def generate_scores_map(mean, inv_covariance, embedding, out_shape, gaussian_blur = True):
-    # calculate distance matrix
-    B, C, H, W = embedding.shape
-    #embedding = embedding.reshape((B, C, H * W))
+class PatchCore(PaDiMPlus):
     
-    # calculate mahalanobis distances
-    distances = mahalanobis_einsum(embedding, mean, inv_covariance)
-    score_map = F.interpolate(distances.unsqueeze(1), size=out_shape, mode='bilinear',
+    def load(self, state):
+        self.memory_bank = state['memory_bank']
+    
+    def clean_stats(self, set_None=True):
+        if set_None:
+            self.memory_bank = None
+        else:
+            self.memory_bank = paddle.zeros_like(self.memory_bank)
+    
+    def set_dist_params(self, memory_bank):
+        self.memory_bank = memory_bank
+        
+    @paddle.no_grad()
+    def forward_res(self, x):
+        res = []
+        x = self.model.conv1(x)
+        x = self.model.bn1(x)
+        x = self.model.relu(x)
+        x = self.model.maxpool(x)
+        x = self.model.layer1(x)
+        x = self.model.layer2(x)
+        res.append(F.avg_pool2d(x,3,1,1))
+        x = self.model.layer3(x)
+        res.append(F.avg_pool2d(x,3,1,1))
+        return res
+    
+    @paddle.no_grad()
+    def forward(self, x):
+        pool = paddle.nn.AvgPool2D(3,1,1,exclusive=False)
+        res = []
+        x = self.model.conv1(x)
+        x = self.model.bn1(x)
+        x = self.model.relu(x)
+        x = self.model.maxpool(x)
+        x = self.model.layer1(x)
+        x = self.model.layer2(x)
+        res.append(pool(x))
+        x=self.model.layer3(x)
+        res.append(pool(x))
+        x = res
+        for i in range(1,len(x)):
+            x[i] = F.interpolate(x[i], scale_factor=2**i, mode="nearest")
+        #print([i.shape for i in x])
+        x = paddle.concat(x, 1)
+        #x = self.project(x)
+        return x
+
+    @paddle.no_grad()
+    def compute_stats(self, embedding):
+        C = embedding.shape[1]
+        embedding = embedding.transpose((0, 2, 3, 1)).reshape((-1, C))
+        print("Creating CoreSet Sampler via k-Center Greedy")
+        sampler = KCenterGreedy(embedding, sampling_ratio=self.k/100)
+        print("Getting the coreset from the main embedding.")
+        coreset = sampler.sample_coreset()
+        print(f"Assigning the coreset as the memory bank with shape {coreset.shape}.")#18032,384
+        self.memory_bank = coreset
+    
+    def compute_stats_einsum(self, outs):
+        raise NotImplementedError
+    
+    def compute_stats_incremental(self, out):
+        raise NotImplementedError
+
+    def compute_inv_incremental(self, B, eps=0.01):
+        raise NotImplementedError
+
+    def project(self, x, return_HWBC=False):
+        # no per project
+        return x #super().project(x, return_HWBC)
+
+    def generate_scores_map(self, embedding, out_shape, gaussian_blur = True):
+        #Nearest Neighbours distances
+        B, C, H, W = embedding.shape
+        embedding = embedding.transpose((0,2,3,1)).reshape((B, H*W, C))
+        distances = self.nearest_neighbors(embedding=embedding, n_neighbors=9)
+        distances = distances.transpose((2,0,1)) # n_neighbors, B, HW
+        image_score = []
+        for i in range(B):
+            image_score.append(self.compute_image_anomaly_score(distances[:,i,:]))
+        distances = distances[0, :, :].reshape((B,H,W))
+        score_map = generate_scores_map(distances, embedding, out_shape, gaussian_blur)
+        return score_map, np.array(image_score)
+
+    def nearest_neighbors(self, embedding, n_neighbors: int = 9):
+        """Compare embedding Features with the memory bank to get Nearest Neighbours distance
+        """
+        B, HW, C = embedding.shape
+        n_coreset = self.memory_bank.shape[0]
+        distances = paddle.zeros((B, HW, n_coreset))
+        for i in range(B):
+            distances[i,:,:] = cdist(embedding[i,:,:], self.memory_bank, p=2.0)  # euclidean norm
+        # BHW*C
+        distances, _ = distances.topk(k=n_neighbors, axis=-1, largest=False)
+        return distances #B,
+
+    @staticmethod
+    def compute_image_anomaly_score(distance):
+        """Compute Image-Level Anomaly Score for one nearest_neighbor distance map.
+        """
+        #distances[n_neighbors, B, HW]
+        max_scores = paddle.argmax(distance[0,:])
+        confidence = distance[:, max_scores]#paddle.index_select(distances, max_scores, -1)
+        weights = 1 - (paddle.max(paddle.exp(confidence)) / paddle.sum(paddle.exp(confidence)))
+        score = weights * paddle.max(distance[0,:])
+        return score.item()
+
+def generate_scores_map(distances, embedding, out_shape, gaussian_blur = True, mode='bilinear'):
+    score_map = F.interpolate(distances.unsqueeze(1), size=out_shape, mode=mode,
                             align_corners=False).squeeze(1).numpy()
 
     if gaussian_blur:
@@ -248,6 +372,11 @@ def generate_scores_map(mean, inv_covariance, embedding, out_shape, gaussian_blu
             score_map[i] = gaussian_filter(score_map[i], sigma=4)
 
     return score_map
+
+def get_model(method):
+    if 'coreset' == method:
+        return PatchCore
+    return PaDiMPlus
 
 if __name__ == '__main__':
     model = PaDiMPlus()

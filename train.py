@@ -13,7 +13,7 @@ import paddle.nn.functional as F
 from paddle.io import DataLoader
 
 import datasets.mvtec as mvtec
-from model import PaDiMPlus
+from model import get_model
 from utils import str2bool
 from eval import eval
 
@@ -32,9 +32,10 @@ def parse_args():
     parser.add_argument("--category", type=str , default='tile', help="category name for MvTec AD dataset")
     parser.add_argument('--crop_size', type=int, default=256)
     parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--test_batch_size', type=int, default=1)
     parser.add_argument("--arch", type=str, default='resnet18', help="backbone model arch, one of [resnet18, resnet50, wide_resnet50_2]")
     parser.add_argument("--k", type=int, default=100, help="feature used")
-    parser.add_argument("--method", type=str, default='sample',choices=['sample','h_sample', 'ortho', 'svd_ortho', 'gaussian'], help="projection method, one of [sample, ortho, svd_ortho, gaussian]")
+    parser.add_argument("--method", type=str, default='sample',choices=['sample','h_sample', 'ortho', 'svd_ortho', 'gaussian', 'coreset'], help="projection method, one of [sample, ortho, svd_ortho, gaussian, coreset]")
     parser.add_argument("--save_model", type=str2bool, default=True)
     parser.add_argument("--save_pic", type=str2bool, default=True)
     parser.add_argument("--inc",  action='store_true', help="use incremental cov & mean")
@@ -50,20 +51,25 @@ def parse_args():
     parser.add_argument("--debug", action='store_true')
     
     args, _ =  parser.parse_known_args()
+    if args.debug:
+        import sys
+        from IPython.core import ultratb
+        sys.excepthook = ultratb.FormattedTB(mode='Verbose', call_pdb=1)
     return args
 
-
+@paddle.no_grad()
 def main():
 
     args = parse_args()
     if args.save_model_subfolder: args.save_path += f"/{args.method}_{args.arch}_{args.k}"
+    if args.method =='coreset': args.test_batch_size=1
     print(args)
     random.seed(args.seed)
     np.random.seed(args.seed)
     paddle.seed(args.seed)
     if args.cpu: paddle.device.set_device("cpu")
     # build model
-    model = PaDiMPlus(arch=args.arch, pretrained=True, fout=args.k, method=args.method)
+    model = get_model(args.method)(arch=args.arch, pretrained=True, fout=args.k, method=args.method)
     if args.load_projection:
         model.projection = paddle.to_tensor(np.load(args.load_projection))
     else:
@@ -72,11 +78,11 @@ def main():
     #print(model.projection)
     result = []
     if args.category == 'all':
-        class_names = mvtec.CLASS_NAMES 
+        class_names = mvtec.CLASS_NAMES
     elif args.category == 'textures':
-        class_names = mvtec.textures 
+        class_names = mvtec.textures
     elif args.category == 'objects':
-        class_names = mvtec.objects 
+        class_names = mvtec.objects
     else:
         class_names = [args.category]
     csv_columns = ['category','Image_AUROC','Pixel_AUROC', 'PRO_score']
@@ -89,11 +95,11 @@ def main():
         train(args, model, train_dataloader, class_name)
         if args.eval:
             test_dataset = mvtec.MVTecDataset(args.data_path, class_name=class_name, is_train=False, cropsize=args.crop_size)
-            test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size)
+            test_dataloader = DataLoader(test_dataset, batch_size=args.test_batch_size)
             result.append([class_name, *eval(args, model, test_dataloader, class_name)])
             if args.category in ['all', 'textures', 'objects']:
                 pd.DataFrame(result, columns=csv_columns).set_index('category').to_csv(csv_name)
-        model.clean_stats()
+        model.reset_stats()
     if args.eval:
         result = pd.DataFrame(result, columns=csv_columns).set_index('category')
         if not args.eval_PRO: del result['PRO_score']
@@ -114,18 +120,13 @@ def train(args, model, train_dataloader, class_name):
     if args.inc:
         c = model.k #args.k
         h = w = args.crop_size//4
-        X_cov = paddle.zeros([h, w, c, c])  # covariance
-        X_mean = paddle.zeros([h, w, c])  # mean
         N = 0 # sample num
         for (x,_) in tqdm(train_dataloader, '| feature extraction | train | %s |' % class_name):
             # model prediction
             out = model(x)
             out = model.project(out, True) #hwbc
+            model.compute_stats_incremental(out)
             N += x.shape[0]
-            X_mean += out.sum(2)
-            #X_cov += paddle.einsum('bchw, bdhw -> hwcd', out, out)
-            for i in range(h):
-                X_cov[i,:,:,:] += paddle.einsum('wbc, wbd -> wcd',out[i,:,:,:],out[i,:,:,:])
         del out, x
     else:
         outs = []
@@ -139,7 +140,7 @@ def train(args, model, train_dataloader, class_name):
     
     #paddle.device.set_device("cpu")
     if args.inc:
-        model.compute_inv_incremental(X_mean, X_cov, N)
+        model.compute_inv_incremental(N)
     else:
         if args.einsum:
             model.compute_stats_einsum(outs)
@@ -150,6 +151,7 @@ def train(args, model, train_dataloader, class_name):
     t = time.time() - epoch_begin
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '\t' +
           "Train ends, total {:.2f}s".format(t))
+    #print(list(model.named_buffers()))
     if args.save_model:
         print("Saving model...")
         save_name = os.path.join(args.save_path, '{}.pdparams'.format(class_name))
@@ -157,9 +159,7 @@ def train(args, model, train_dataloader, class_name):
         os.makedirs(dir_name, exist_ok=True)
         state_dict = {
             "params":model.model.state_dict(),
-            "mean":model.mean,
-            "inv_covariance":model.inv_covariance,
-            "projection":model.projection,
+            "stats":model._buffers,
         }
         paddle.save(state_dict, save_name)
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '\t' + "Save model in {}".format(str(save_name)))

@@ -14,11 +14,10 @@
 
 import os
 import argparse
-import pickle
 
 import paddle
 
-from model import PaDiMPlus
+from model import get_model
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Model export.')
@@ -47,14 +46,12 @@ def main():
     print(args)
     
     # build model
-    model = PaDiMPlus(arch=args.arch, pretrained=False, fout=args.k, method= args.method)
+    model = get_model(args.method)(arch=args.arch, pretrained=False, fout=args.k, method= args.method)
     state = paddle.load(args.model_path)
     model.model.set_dict(state.pop("params"))
-    model.projection = state["projection"]
-    model.mean = state["mean"]
-    model.inv_covariance = state["inv_covariance"]
+    model.load(state["stats"])
     model.eval()
-    paddle.save(state, os.path.join(args.save_dir, 'stats'))
+    paddle.save(state["stats"], os.path.join(args.save_dir, 'stats'))
 
     shape = [-1, 3, args.img_size, args.img_size]
     model = paddle.jit.to_static(

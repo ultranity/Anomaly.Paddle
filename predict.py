@@ -8,7 +8,7 @@ from PIL import Image
 import paddle
 
 import datasets.mvtec as mvtec
-from model import PaDiMPlus
+from model import get_model
 from utils import plot_fig, str2bool
 
 
@@ -45,13 +45,11 @@ def main():
     print("Testing model for {}".format(class_name))
     # build model
     args.model_path = args.model_path or args.save_path + '/{}.pdparams'.format(class_name)
-    model = PaDiMPlus(arch=args.arch, pretrained=False, fout=args.k, method=args.method)
+    model = get_model(args.method)(arch=args.arch, pretrained=False, fout=args.k, method=args.method)
     model.eval()
     state = paddle.load(args.model_path)
     model.model.set_dict(state["params"])
-    model.projection = state["projection"]
-    model.mean = state["mean"]
-    model.inv_covariance = state["inv_covariance"]
+    model.load(state["stats"])
     model.eval()
     
     # build data
@@ -66,7 +64,7 @@ def predict(args, model, x):
     # model prediction
     out = model(x)
     out = model.project(out)
-    score_map = model.generate_scores_map(out, x.shape[-2:])
+    score_map, image_score = model.generate_scores_map(out, x.shape[-2:])
     #score_map = np.concatenate(score_map, 0)
     
     # Normalization

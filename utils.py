@@ -98,6 +98,17 @@ def orthogonal(rows,cols, gain=1):
     q *= gain
     return q
 
+def cdist(X, Y, p=2.0):
+    #2d P, C = X.shape| R, C = Y.shape -> P,R
+    P, C = X.shape
+    R, C = Y.shape 
+    #3d B, P, C = X.shape|1, R, C = Y.shape -> B, P,R
+    #D = paddle.linalg.norm(X[:, None, :]-Y[None, :, :], axis=-1)
+    D = paddle.zeros((P, R))
+    for i in range(P):
+        D[i,:] = paddle.linalg.norm(X[i, None, :]-Y, axis=-1)
+        #D[i,:] = (X[i, None, :]-Y).square().sum(-1).sqrt()
+    return D
 
 def compute_pro_(y_true:np.ndarray, binary_amaps:np.ndarray, method='mean') -> float:
     pros = []

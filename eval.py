@@ -36,7 +36,7 @@ def parse_args():
     parser.add_argument('--test_batch_size', type=int, default=1)
     parser.add_argument("--arch", type=str, default='resnet18', help="backbone model arch, one of [resnet18, resnet50, wide_resnet50_2]")
     parser.add_argument("--k", type=int, default=100, help="feature used")
-    parser.add_argument("--method", type=str, default='coreset', help="projection method, one of ['sample','h_sample', 'ortho', 'svd_ortho', 'gaussian']")
+    parser.add_argument("--method", type=str, default='sample', help="projection method, one of ['sample','h_sample', 'ortho', 'svd_ortho', 'gaussian']")
     parser.add_argument("--save_pic", type=str2bool, default=True)
     parser.add_argument('--eval_PRO', action='store_true')
     parser.add_argument('--non_partial_AUC', action='store_true')
@@ -78,16 +78,15 @@ def main():
         test_dataset = mvtec.MVTecDataset(args.data_path, class_name=class_name, is_train=False, cropsize=args.crop_size)
         test_dataloader = DataLoader(test_dataset, batch_size=args.test_batch_size, num_workers=args.num_workers)
         result.append([class_name, *eval(args, model, test_dataloader, class_name)])
-        if args.category == 'all':
+        if args.category in ['all', 'textures', 'objects']:
             pd.DataFrame(result, columns=csv_columns).set_index('category').to_csv(csv_name)
     result = pd.DataFrame(result, columns=csv_columns).set_index('category')
     if not args.eval_PRO: result = result.drop(columns="PRO_score")
-    print("Evaluation result saved at{}:".format(csv_name))
+    if args.category in ['all', 'textures', 'objects']:
+        result.loc['mean'] = result.mean(numeric_only=True)
     print(result)
+    print("Evaluation result saved at{}:".format(csv_name))
     result.to_csv(csv_name)
-    if args.category == 'all':
-        print("=========Mean Performance========")
-        print(result.mean(numeric_only=True))
 
 @paddle.no_grad()
 def eval(args, model, test_dataloader, class_name):

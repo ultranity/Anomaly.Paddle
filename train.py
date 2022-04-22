@@ -104,12 +104,11 @@ def main():
     if args.eval:
         result = pd.DataFrame(result, columns=csv_columns).set_index('category')
         if not args.eval_PRO: del result['PRO_score']
-        print("Evaluation result saved at{}:".format(csv_name))
-        print(result)
-        result.to_csv(csv_name)
         if args.category in ['all', 'textures', 'objects']:
-            print("===== Category {} Mean Performance ====".format(args.category.upper()))
-            print(result.mean(numeric_only=True))
+            result.loc['mean'] = result.mean(numeric_only=True)
+        print(result)
+        print("Evaluation result saved at{}:".format(csv_name))
+        result.to_csv(csv_name)
 
 @paddle.no_grad()
 def train(args, model, train_dataloader, class_name):

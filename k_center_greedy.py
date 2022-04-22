@@ -63,22 +63,6 @@ class KCenterGreedy:
             else:
                 self.min_distances = paddle.minimum(self.min_distances, distance)
 
-    def get_new_idx(self) -> int:
-        """Get index value of a sample.
-
-        Based on minimum distance of the cluster
-
-        Returns:
-            int: Sample index
-        """
-
-        if isinstance(self.min_distances, Tensor):
-            idx = int(paddle.argmax(self.min_distances).item())
-        else:
-            raise ValueError(f"self.min_distances must be of type Tensor. Got {type(self.min_distances)}")
-
-        return idx
-
     def select_coreset_idxs(self, selected_idxs: Optional[List[int]] = None) -> List[int]:
         """Greedily form a coreset to minimize the maximum distance of a cluster.
 
@@ -100,17 +84,17 @@ class KCenterGreedy:
             self.features = self.embedding.reshape((self.embedding.shape[0], -1))
             self.update_distances(cluster_centers=selected_idxs)
 
-        selected_coreset_idxs: List[int] = []
-        idx = int(paddle.randint(high=self.n_observations, shape=(1,)).item())
+        selected_coreset_idxs = []
+        idx = paddle.randint(high=self.n_observations, shape=(1,))#.item()
         for _ in tqdm(range(self.coreset_size)):
             self.update_distances(cluster_centers=[idx])
-            idx = self.get_new_idx()
-            if idx in selected_idxs:
-                raise ValueError("New indices should not be in selected indices.")
+            idx = paddle.argmax(self.min_distances)
+            #if idx in selected_idxs:
+            #    raise ValueError("New indices should not be in selected indices.")
             self.min_distances[idx] = 0
             selected_coreset_idxs.append(idx)
 
-        return selected_coreset_idxs
+        return paddle.concat(selected_coreset_idxs)
 
     def sample_coreset(self, selected_idxs: Optional[List[int]] = None) -> Tensor:
         """Select coreset from the embedding.

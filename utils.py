@@ -50,13 +50,13 @@ def mahalanobis(embedding, mean, inv_covariance):
     delta = (embedding - mean).reshape((B,C,H*W)).transpose((2, 0, 1))
     distances = ((delta @ inv_covariance) @ delta).sum(2).transpose((1, 0))
     distances = distances.reshape((B, H, W))
-    distances = paddle.sqrt(distances)
+    distances = distances.sqrt_()
     return distances
 
 def mahalanobis_einsum(embedding, mean, inv_covariance):
     M = embedding - mean
     distances = paddle.einsum('nmhw,hwmk,nkhw->nhw', M, inv_covariance, M)
-    distances = paddle.sqrt(distances)
+    distances = distances.sqrt_()
     return distances
 
 def svd_orthogonal(fin, fout, use_paddle=False):
@@ -107,7 +107,7 @@ def cdist(X, Y, p=2.0):
     """D = paddle.zeros((P, R))
     for i in range(P):
         D[i,:] = paddle.linalg.norm(X[i, None, :]-Y, axis=-1)
-        #D[i,:] = (X[i, None, :]-Y).square().sum(-1).sqrt()
+        #D[i,:] = (X[i, None, :]-Y).square().sum(-1).sqrt_()
     #"""
     D = []
     for i in range(P):

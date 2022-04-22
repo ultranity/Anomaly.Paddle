@@ -368,8 +368,8 @@ class PatchCore(PaDiMPlus):
         return score.item()
 
 def generate_scores_map(distances, embedding, out_shape, gaussian_blur = True, mode='bilinear'):
-    score_map = F.interpolate(distances.unsqueeze(1), size=out_shape, mode=mode,
-                            align_corners=False).squeeze(1).numpy()
+    score_map = F.interpolate(distances.unsqueeze_(1), size=out_shape, mode=mode,
+                            align_corners=False).squeeze_(1).numpy()
 
     if gaussian_blur:
         # apply gaussian smoothing on the score map

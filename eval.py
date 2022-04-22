@@ -32,6 +32,7 @@ def parse_args():
     parser.add_argument("--category", type=str , default='tile', help="category name for MvTec AD dataset")
     parser.add_argument('--crop_size', type=int, default=256)
     parser.add_argument('--batch_size', type=int, default=1)
+    parser.add_argument('--num_workers', type=int, default=0)
     parser.add_argument('--test_batch_size', type=int, default=1)
     parser.add_argument("--arch", type=str, default='resnet18', help="backbone model arch, one of [resnet18, resnet50, wide_resnet50_2]")
     parser.add_argument("--k", type=int, default=100, help="feature used")
@@ -75,7 +76,7 @@ def main():
         
         # build datasets
         test_dataset = mvtec.MVTecDataset(args.data_path, class_name=class_name, is_train=False, cropsize=args.crop_size)
-        test_dataloader = DataLoader(test_dataset, batch_size=args.test_batch_size)
+        test_dataloader = DataLoader(test_dataset, batch_size=args.test_batch_size, num_workers=args.num_workers)
         result.append([class_name, *eval(args, model, test_dataloader, class_name)])
         if args.category == 'all':
             pd.DataFrame(result, columns=csv_columns).set_index('category').to_csv(csv_name)
@@ -116,7 +117,7 @@ def eval(args, model, test_dataloader, class_name):
     max_score = score_map.max()
     min_score = score_map.min()
     score_map = (score_map - min_score) / (max_score - min_score)
-
+    print(f"max_score:{max_score} min_score:{min_score}")
     # calculate image-level ROC AUC score
     gt_list = np.asarray(gt_list)
     #fpr, tpr, _ = roc_curve(gt_list, image_score)
@@ -127,7 +128,7 @@ def eval(args, model, test_dataloader, class_name):
     b = precision + recall
     f1 = np.divide(a, b, out=np.zeros_like(a), where=b != 0)
     threshold = thresholds[np.argmax(f1)]
-    
+    print(f"F1 image:{f1.max()} threshold:{max_score}")
     # calculate per-pixel level ROCAUC
     gt_mask = np.asarray(gt_mask_list, dtype=np.int64).squeeze()
     #fpr, tpr, _ = roc_curve(gt_mask.flatten(), scores.flatten())
@@ -138,6 +139,7 @@ def eval(args, model, test_dataloader, class_name):
     b = precision + recall
     f1 = np.divide(a, b, out=np.zeros_like(a), where=b != 0)
     threshold = thresholds[np.argmax(f1)]
+    print(f"F1 pixel:{f1.max()} threshold:{max_score}")
     
     # calculate Per-Region-Overlap Score
     total_PRO = compute_pro_score(gt_mask, score_map, args.eval_threthold_step, args.non_partial_AUC) if args.eval_PRO else None

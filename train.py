@@ -31,6 +31,7 @@ def parse_args():
     parser.add_argument('--save_path', type=str, default='./output')
     parser.add_argument("--category", type=str , default='tile', help="category name for MvTec AD dataset")
     parser.add_argument('--crop_size', type=int, default=256)
+    parser.add_argument('--num_workers', type=int, default=0)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--test_batch_size', type=int, default=1)
     parser.add_argument("--arch", type=str, default='resnet18', help="backbone model arch, one of [resnet18, resnet50, wide_resnet50_2]")
@@ -91,11 +92,11 @@ def main():
         print("Training model {}/{} for {}".format(i+1, len(class_names), class_name))
         # build datasets
         train_dataset = mvtec.MVTecDataset(args.data_path, class_name=class_name, is_train=True, cropsize=args.crop_size)
-        train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size)
+        train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.num_workers)
         train(args, model, train_dataloader, class_name)
         if args.eval:
             test_dataset = mvtec.MVTecDataset(args.data_path, class_name=class_name, is_train=False, cropsize=args.crop_size)
-            test_dataloader = DataLoader(test_dataset, batch_size=args.test_batch_size)
+            test_dataloader = DataLoader(test_dataset, batch_size=args.test_batch_size, num_workers=args.num_workers)
             result.append([class_name, *eval(args, model, test_dataloader, class_name)])
             if args.category in ['all', 'textures', 'objects']:
                 pd.DataFrame(result, columns=csv_columns).set_index('category').to_csv(csv_name)

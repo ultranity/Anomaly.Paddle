@@ -1,0 +1,219 @@
+/home/aistudio/Anomaly.Paddle
+Namespace(arch='resnet18', batch_size=32, category='capsule', cpu=False, crop_size=256, data_path='./test_tipc/data/MVTec', debug=False, einsum=False, eval=False, eval_PRO=False, eval_threthold_step=500, inc=False, k=10, load_projection=None, method='coreset', non_partial_AUC=False, num_workers=0, save_model=True, save_model_subfolder=False, save_path='./test_tipc/output/PatchCore/', save_pic=False, seed=521, test_batch_size=1)
+W0422 19:44:36.112818  2439 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0422 19:44:36.117478  2439 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+model resnet18, nParams 2787264
+Training model 1/1 for capsule
+| feature extraction | train | capsule |:   0%|           | 0/1 [00:00<?, ?it/s]/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/tensor/creation.py:130: DeprecationWarning: `np.object` is a deprecated alias for the builtin `object`. To silence this warning, use `object` by itself. Doing this will not modify any behavior and is safe. 
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  if data.dtype == np.object:
+| feature extraction | train | capsule |: 100%|███| 1/1 [00:00<00:00,  4.06it/s]
+Creating CoreSet Sampler via k-Center Greedy
+Getting the coreset from the main embedding.
+Assigning the coreset as the memory bank with shape [204, 384].
+2022-04-22 19:44:51	Train ends, total 5.04s
+Saving model...
+2022-04-22 19:44:51	Save model in ./test_tipc/output/PatchCore/capsule.pdparams
+ Run successfully with command - python3.7 train.py --data_path=./test_tipc/data/MVTec --category capsule --method=coreset --arch=resnet18 --k=10 --save_path=./test_tipc/output/PatchCore/ --save_model_subfolder=False --save_pic=False!  
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/__init__.py:107: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import MutableMapping
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/rcsetup.py:20: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import Iterable, Mapping
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:53: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import Sized
+Namespace(arch='resnet18', img_size=256, k=10, method='coreset', model_path='./test_tipc/output/PatchCore/capsule.pdparams', save_dir='./test_tipc/output/PatchCore/')
+W0422 19:44:54.433100  2505 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0422 19:44:54.438017  2505 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+model resnet18, nParams 2787264
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/utils.py:77: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  return (isinstance(seq, collections.Sequence) and
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmpjlu4vey0.py:21
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmpezdsu5w0.py:21
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmp9pbkru9z.py:21
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmpkjpu0z2t.py:21
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmp47qni97v.py:21
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/fluid/layers/math_op_patch.py:341: UserWarning: /tmp/tmpin_k1g4z.py:21
+The behavior of expression A + B has been unified with elementwise_add(X, Y, axis=-1) from Paddle 2.0. If your code works well in the older versions but crashes in this version, try to use elementwise_add(X, Y, axis=0) instead of A + B. This transitional warning will be dropped in the future.
+  op_type, op_type, EXPRESSION_MAP[method_name]))
+Model is saved in ./test_tipc/output/PatchCore/.
+ Run successfully with command - python3.7 export_model.py --method=coreset --arch=resnet18 --k=10 --model_path=./test_tipc/output/PatchCore/capsule.pdparams --save_dir=./test_tipc/output/PatchCore/!  
+W0422 19:45:12.481762  2565 analysis_predictor.cc:795] The one-time configuration of analysis predictor failed, which may be due to native predictor called first and its configurations taken effect.
+--- Running analysis [ir_graph_build_pass]
+--- Running analysis [ir_graph_clean_pass]
+--- Running analysis [ir_analysis_pass]
+--- Running IR pass [is_test_pass]
+--- Running IR pass [simplify_with_basic_ops_pass]
+--- Running IR pass [conv_affine_channel_fuse_pass]
+--- Running IR pass [conv_eltwiseadd_affine_channel_fuse_pass]
+--- Running IR pass [conv_bn_fuse_pass]
+I0422 19:45:12.521989  2565 fuse_pass_base.cc:57] ---  detected 15 subgraphs
+--- Running IR pass [conv_eltwiseadd_bn_fuse_pass]
+--- Running IR pass [embedding_eltwise_layernorm_fuse_pass]
+--- Running IR pass [multihead_matmul_fuse_pass_v2]
+--- Running IR pass [squeeze2_matmul_fuse_pass]
+--- Running IR pass [reshape2_matmul_fuse_pass]
+--- Running IR pass [flatten2_matmul_fuse_pass]
+--- Running IR pass [map_matmul_v2_to_mul_pass]
+--- Running IR pass [map_matmul_v2_to_matmul_pass]
+--- Running IR pass [map_matmul_to_mul_pass]
+--- Running IR pass [fc_fuse_pass]
+--- Running IR pass [fc_elementwise_layernorm_fuse_pass]
+--- Running IR pass [conv_elementwise_add_act_fuse_pass]
+--- Running IR pass [conv_elementwise_add2_act_fuse_pass]
+--- Running IR pass [conv_elementwise_add_fuse_pass]
+--- Running IR pass [transpose_flatten_concat_fuse_pass]
+--- Running IR pass [runtime_context_cache_pass]
+--- Running analysis [ir_params_sync_among_devices_pass]
+I0422 19:45:12.532099  2565 ir_params_sync_among_devices_pass.cc:45] Sync params from CPU to GPU
+--- Running analysis [adjust_cudnn_workspace_size_pass]
+--- Running analysis [inference_op_replace_pass]
+--- Running analysis [memory_optimize_pass]
+I0422 19:45:12.757903  2565 memory_optimize_pass.cc:216] Cluster name : batch_norm_14.tmp_2  size: 262144
+I0422 19:45:12.757941  2565 memory_optimize_pass.cc:216] Cluster name : x  size: 786432
+I0422 19:45:12.757944  2565 memory_optimize_pass.cc:216] Cluster name : pool2d_0.tmp_0  size: 1048576
+I0422 19:45:12.757948  2565 memory_optimize_pass.cc:216] Cluster name : relu_0.tmp_0  size: 4194304
+I0422 19:45:12.757951  2565 memory_optimize_pass.cc:216] Cluster name : batch_norm_2.tmp_2  size: 1048576
+--- Running analysis [ir_graph_to_program_pass]
+I0422 19:45:12.771613  2565 analysis_predictor.cc:714] ======= optimize end =======
+I0422 19:45:12.772070  2565 naive_executor.cc:98] ---  skip [feed], feed -> x
+I0422 19:45:12.773288  2565 naive_executor.cc:98] ---  skip [concat_0.tmp_0], fetch -> fetch
+W0422 19:45:12.838366  2565 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0422 19:45:12.842801  2565 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/__init__.py:107: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import MutableMapping
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/rcsetup.py:20: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import Iterable, Mapping
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:53: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import Sized
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/tensor/creation.py:130: DeprecationWarning: `np.object` is a deprecated alias for the builtin `object`. To silence this warning, use `object` by itself. Doing this will not modify any behavior and is safe. 
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  if data.dtype == np.object:
+Inference model(PaDiM)...
+load train set feature from: ./test_tipc/output/PatchCore/stats
+ Run successfully with command - python3.7 infer.py --stats=./test_tipc/output/PatchCore/stats --use_gpu=True --use_tensorrt=False --precision=fp32 --model_file=./test_tipc/output/PatchCore/model.pdmodel --batch_size=1 --input_file=./test_tipc/data/MVTec/capsule/test/crack/001.png  --params_file=./test_tipc/output/PatchCore/model.pdiparams > ./test_tipc/output/PatchCore/python_infer_gpu_usetrt_False_precision_fp32_batchsize_1.log 2>&1 !  
+--- Running analysis [ir_graph_build_pass]
+--- Running analysis [ir_graph_clean_pass]
+--- Running analysis [ir_analysis_pass]
+--- Running IR pass [simplify_with_basic_ops_pass]
+--- Running IR pass [layer_norm_fuse_pass]
+---    Fused 0 subgraphs into layer_norm op.
+--- Running IR pass [attention_lstm_fuse_pass]
+--- Running IR pass [seqconv_eltadd_relu_fuse_pass]
+--- Running IR pass [seqpool_cvm_concat_fuse_pass]
+--- Running IR pass [mul_lstm_fuse_pass]
+--- Running IR pass [fc_gru_fuse_pass]
+---    fused 0 pairs of fc gru patterns
+--- Running IR pass [mul_gru_fuse_pass]
+--- Running IR pass [seq_concat_fc_fuse_pass]
+--- Running IR pass [squeeze2_matmul_fuse_pass]
+--- Running IR pass [reshape2_matmul_fuse_pass]
+--- Running IR pass [flatten2_matmul_fuse_pass]
+--- Running IR pass [map_matmul_v2_to_mul_pass]
+--- Running IR pass [map_matmul_v2_to_matmul_pass]
+--- Running IR pass [map_matmul_to_mul_pass]
+--- Running IR pass [fc_fuse_pass]
+--- Running IR pass [repeated_fc_relu_fuse_pass]
+--- Running IR pass [squared_mat_sub_fuse_pass]
+--- Running IR pass [conv_bn_fuse_pass]
+I0422 19:45:24.271010  2621 fuse_pass_base.cc:57] ---  detected 15 subgraphs
+--- Running IR pass [conv_eltwiseadd_bn_fuse_pass]
+--- Running IR pass [conv_transpose_bn_fuse_pass]
+--- Running IR pass [conv_transpose_eltwiseadd_bn_fuse_pass]
+--- Running IR pass [is_test_pass]
+--- Running IR pass [runtime_context_cache_pass]
+--- Running analysis [ir_params_sync_among_devices_pass]
+--- Running analysis [adjust_cudnn_workspace_size_pass]
+--- Running analysis [inference_op_replace_pass]
+--- Running analysis [memory_optimize_pass]
+I0422 19:45:24.275424  2621 memory_optimize_pass.cc:216] Cluster name : conv2d_31.tmp_0  size: 262144
+I0422 19:45:24.275446  2621 memory_optimize_pass.cc:216] Cluster name : batch_norm_0.tmp_2  size: 4194304
+I0422 19:45:24.275450  2621 memory_optimize_pass.cc:216] Cluster name : pool2d_0.tmp_0  size: 1048576
+I0422 19:45:24.275454  2621 memory_optimize_pass.cc:216] Cluster name : relu_0.tmp_0  size: 4194304
+I0422 19:45:24.275457  2621 memory_optimize_pass.cc:216] Cluster name : conv2d_22.tmp_0  size: 1048576
+I0422 19:45:24.275460  2621 memory_optimize_pass.cc:216] Cluster name : x  size: 786432
+--- Running analysis [ir_graph_to_program_pass]
+I0422 19:45:24.290122  2621 analysis_predictor.cc:714] ======= optimize end =======
+I0422 19:45:24.290556  2621 naive_executor.cc:98] ---  skip [feed], feed -> x
+I0422 19:45:24.291898  2621 naive_executor.cc:98] ---  skip [concat_0.tmp_0], fetch -> fetch
+W0422 19:45:24.357095  2621 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0422 19:45:24.361189  2621 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/__init__.py:107: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import MutableMapping
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/rcsetup.py:20: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import Iterable, Mapping
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:53: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import Sized
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/tensor/creation.py:130: DeprecationWarning: `np.object` is a deprecated alias for the builtin `object`. To silence this warning, use `object` by itself. Doing this will not modify any behavior and is safe. 
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  if data.dtype == np.object:
+Inference model(PaDiM)...
+load train set feature from: ./test_tipc/output/PatchCore/stats
+ Run successfully with command - python3.7 infer.py --stats=./test_tipc/output/PatchCore/stats --use_gpu=False --enable_mkldnn=False --cpu_threads=1 --model_file=./test_tipc/output/PatchCore/model.pdmodel --batch_size=1 --input_file=./test_tipc/data/MVTec/capsule/test/crack/001.png   --precision=fp32 --params_file=./test_tipc/output/PatchCore/model.pdiparams > ./test_tipc/output/PatchCore/python_infer_cpu_usemkldnn_False_threads_1_precision_fp32_batchsize_1.log 2>&1 !  
+--- Running analysis [ir_graph_build_pass]
+--- Running analysis [ir_graph_clean_pass]
+--- Running analysis [ir_analysis_pass]
+--- Running IR pass [simplify_with_basic_ops_pass]
+--- Running IR pass [layer_norm_fuse_pass]
+---    Fused 0 subgraphs into layer_norm op.
+--- Running IR pass [attention_lstm_fuse_pass]
+--- Running IR pass [seqconv_eltadd_relu_fuse_pass]
+--- Running IR pass [seqpool_cvm_concat_fuse_pass]
+--- Running IR pass [mul_lstm_fuse_pass]
+--- Running IR pass [fc_gru_fuse_pass]
+---    fused 0 pairs of fc gru patterns
+--- Running IR pass [mul_gru_fuse_pass]
+--- Running IR pass [seq_concat_fc_fuse_pass]
+--- Running IR pass [squeeze2_matmul_fuse_pass]
+--- Running IR pass [reshape2_matmul_fuse_pass]
+--- Running IR pass [flatten2_matmul_fuse_pass]
+--- Running IR pass [map_matmul_v2_to_mul_pass]
+--- Running IR pass [map_matmul_v2_to_matmul_pass]
+--- Running IR pass [map_matmul_to_mul_pass]
+--- Running IR pass [fc_fuse_pass]
+--- Running IR pass [repeated_fc_relu_fuse_pass]
+--- Running IR pass [squared_mat_sub_fuse_pass]
+--- Running IR pass [conv_bn_fuse_pass]
+I0422 19:45:36.271420  2683 fuse_pass_base.cc:57] ---  detected 15 subgraphs
+--- Running IR pass [conv_eltwiseadd_bn_fuse_pass]
+--- Running IR pass [conv_transpose_bn_fuse_pass]
+--- Running IR pass [conv_transpose_eltwiseadd_bn_fuse_pass]
+--- Running IR pass [is_test_pass]
+--- Running IR pass [runtime_context_cache_pass]
+--- Running analysis [ir_params_sync_among_devices_pass]
+--- Running analysis [adjust_cudnn_workspace_size_pass]
+--- Running analysis [inference_op_replace_pass]
+--- Running analysis [memory_optimize_pass]
+I0422 19:45:36.275971  2683 memory_optimize_pass.cc:216] Cluster name : conv2d_31.tmp_0  size: 262144
+I0422 19:45:36.275991  2683 memory_optimize_pass.cc:216] Cluster name : batch_norm_0.tmp_2  size: 4194304
+I0422 19:45:36.275995  2683 memory_optimize_pass.cc:216] Cluster name : pool2d_0.tmp_0  size: 1048576
+I0422 19:45:36.275998  2683 memory_optimize_pass.cc:216] Cluster name : relu_0.tmp_0  size: 4194304
+I0422 19:45:36.276002  2683 memory_optimize_pass.cc:216] Cluster name : conv2d_22.tmp_0  size: 1048576
+I0422 19:45:36.276005  2683 memory_optimize_pass.cc:216] Cluster name : x  size: 786432
+--- Running analysis [ir_graph_to_program_pass]
+I0422 19:45:36.291028  2683 analysis_predictor.cc:714] ======= optimize end =======
+I0422 19:45:36.291543  2683 naive_executor.cc:98] ---  skip [feed], feed -> x
+I0422 19:45:36.292860  2683 naive_executor.cc:98] ---  skip [concat_0.tmp_0], fetch -> fetch
+W0422 19:45:36.364181  2683 device_context.cc:447] Please NOTE: device: 0, GPU Compute Capability: 7.0, Driver API Version: 10.1, Runtime API Version: 10.1
+W0422 19:45:36.369258  2683 device_context.cc:465] device: 0, cuDNN Version: 7.6.
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/__init__.py:107: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import MutableMapping
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/rcsetup.py:20: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import Iterable, Mapping
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/matplotlib/colors.py:53: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated, and in 3.8 it will stop working
+  from collections import Sized
+/opt/conda/envs/python35-paddle120-env/lib/python3.7/site-packages/paddle/tensor/creation.py:130: DeprecationWarning: `np.object` is a deprecated alias for the builtin `object`. To silence this warning, use `object` by itself. Doing this will not modify any behavior and is safe. 
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  if data.dtype == np.object:
+Inference model(PaDiM)...
+load train set feature from: ./test_tipc/output/PatchCore/stats
+ Run successfully with command - python3.7 infer.py --stats=./test_tipc/output/PatchCore/stats --use_gpu=False --enable_mkldnn=False --cpu_threads=2 --model_file=./test_tipc/output/PatchCore/model.pdmodel --batch_size=1 --input_file=./test_tipc/data/MVTec/capsule/test/crack/001.png   --precision=fp32 --params_file=./test_tipc/output/PatchCore/model.pdiparams > ./test_tipc/output/PatchCore/python_infer_cpu_usemkldnn_False_threads_2_precision_fp32_batchsize_1.log 2>&1 !  

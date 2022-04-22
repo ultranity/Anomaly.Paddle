@@ -48,20 +48,23 @@ def get_projection(fin, fout, method='ortho'):
     return W
 
 class PaDiMPlus(nn.Layer):
-    def __init__(self, arch='resnet18', pretrained=True, fout=100, method = 'sample'):
+    def __init__(self, arch='resnet18', pretrained=True, k=100, method = 'sample'):
         super().__init__()
-        assert arch in models.keys(), 'arch {} not supported'.format(arch)
-        
-        self.model = models[arch](pretrained)
-        del self.model.layer4, self.model.fc , self.model.avgpool
-        self.model.eval()
-        print(f'model {arch}, nParams {sum([w.size for w in self.model.parameters()])}')
-        self.arch = arch
-        self.method = method
-        self.fin = fins[arch]
-        self.k = fout
-        self.projection = None
-        self.reset_stats()
+        if isinstance(arch, type(None)) or isinstance(pretrained, type(None)):
+            self.model = None
+            print('Inference mode')
+        else:
+            assert arch in models.keys(), 'arch {} not supported'.format(arch)
+            self.model = models[arch](pretrained)
+            del self.model.layer4, self.model.fc , self.model.avgpool
+            self.model.eval()
+            print(f'model {arch}, nParams {sum([w.size for w in self.model.parameters()])}')
+            self.arch = arch
+            self.method = method
+            self.fin = fins[arch]
+            self.k = k
+            self.projection = None
+            self.reset_stats()
     
     def init_projection(self):
         self.projection = get_projection(fins[self.arch], self.k, self.method)
@@ -253,7 +256,7 @@ class PaDiMPlus(nn.Layer):
         
         # calculate mahalanobis distances
         distances = mahalanobis_einsum(embedding, self.mean, self.inv_covariance)
-        score_map = generate_scores_map(distances, embedding, out_shape, gaussian_blur)
+        score_map = postporcess_score_map(distances, out_shape, gaussian_blur)
         img_score = score_map.reshape(score_map.shape[0], -1).max(axis=1)
         return score_map, img_score
         return 
@@ -341,7 +344,7 @@ class PatchCore(PaDiMPlus):
         for i in range(B):
             image_score.append(self.compute_image_anomaly_score(distances[:,i,:]))
         distances = distances[0, :, :].reshape((B,H,W))
-        score_map = generate_scores_map(distances, embedding, out_shape, gaussian_blur)
+        score_map = postporcess_score_map(distances, out_shape, gaussian_blur)
         return score_map, np.array(image_score)
 
     def nearest_neighbors(self, embedding, n_neighbors: int = 9):
@@ -367,10 +370,9 @@ class PatchCore(PaDiMPlus):
         score = weights * paddle.max(distance[0,:])
         return score.item()
 
-def generate_scores_map(distances, embedding, out_shape, gaussian_blur = True, mode='bilinear'):
+def postporcess_score_map(distances, out_shape, gaussian_blur = True, mode='bilinear'):
     score_map = F.interpolate(distances.unsqueeze_(1), size=out_shape, mode=mode,
                             align_corners=False).squeeze_(1).numpy()
-
     if gaussian_blur:
         # apply gaussian smoothing on the score map
         for i in range(score_map.shape[0]):

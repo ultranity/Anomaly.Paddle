@@ -18,6 +18,7 @@ def parse_args():
     parser.add_argument('--save_path', type=str, default='./output')
     parser.add_argument('--model_path', type=str, default=None, help="specify model path if needed")
     parser.add_argument("--category", type=str, default='leather', help="category name for MvTec AD dataset")
+    parser.add_argument('--resize', type=int, default=256)
     parser.add_argument('--crop_size', type=int, default=256)
     parser.add_argument("--arch", type=str, default='resnet18', help="backbone model arch, one of [resnet18, resnet50, wide_resnet50_2]")
     parser.add_argument("--k", type=int, default=100, help="feature used")
@@ -45,7 +46,7 @@ def main():
     print("Testing model for {}".format(class_name))
     # build model
     args.model_path = args.model_path or args.save_path + '/{}.pdparams'.format(class_name)
-    model = get_model(args.method)(arch=args.arch, pretrained=False, fout=args.k, method=args.method)
+    model = get_model(args.method)(arch=args.arch, pretrained=False, k=args.k, method=args.method)
     model.eval()
     state = paddle.load(args.model_path)
     model.model.set_dict(state["params"])
@@ -53,7 +54,7 @@ def main():
     model.eval()
     
     # build data
-    transform_x = mvtec.MVTecDataset.get_transform(cropsize=args.crop_size)[0]
+    transform_x = mvtec.MVTecDataset.get_transform(resize=args.resize, cropsize=args.crop_size)[0]
     x = Image.open(args.picture_path).convert('RGB')
     x = transform_x(x).unsqueeze(0)
     predict(args, model, x)

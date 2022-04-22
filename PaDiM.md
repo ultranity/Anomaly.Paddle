@@ -122,6 +122,7 @@ python train.py --data_path=PATH/TO/MVTec/ --category carpet --method=sample --a
 可用参数：
 category指定数据类别，可用all代表全部类别，objects代表物体类别，textures代表所有纹理类别。
 data_path指定数据集路径**PATH/TO/MVTec**
+model_path指定模型权重路径，默认加载output/model对应权重（由以下算法参数确定）
 method 指定所用算法，PaDiM对应`--method=ortho`
 arch 指定所用backbone，复现任务为`--arch=wide_resnet50_2`
 k 指定所用特征数量，复现任务为`--k=300`
@@ -150,12 +151,12 @@ python predict.py PATH/TO/MVTec/carpet/test/color/000.png --category carpet --me
 ## 5. 模型推理部署：预训练模型的静态图导出与推理测试
 
 ```shell
-python export_model.py --depth 18 --img_size=224 --model_path=./output/carpet/best.pdparams --save_dir=./output
+python export_model.py --method=sample --arch=resnet18 --k=100 --category=carpet --save_dir=./output
 ```
 注意：该算法导出分为两个部分，一部分是预训练模型`model.pdiparams,model.pdmodel`，一部分是训练集获得的分布数据（平均值矩阵和精度矩阵）`stats`。
 
 ```shell
-!python infer.py --use_gpu=True --model_file=output/model.pdmodel --input_file=/home/aistudio/data/carpet/test/color/000.png --params_file=output/model.pdiparams --category=carpet  --stats=./output/stats --save_path=./output
+python infer.py --use_gpu=True --model_file=output/model.pdmodel --input_file=/home/aistudio/data/carpet/test/color/000.png --params_file=output/model.pdiparams --category=carpet  --stats=./output/stats --save_path=./output
 ```
 可正常导出与推理。
 推理结果与动态图一致。

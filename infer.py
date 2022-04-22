@@ -25,7 +25,7 @@ from paddle.vision import transforms as T
 from paddle import inference
 from paddle.inference import Config, create_predictor
 
-from model import generate_scores_map
+from model import PatchCore, postporcess_score_map, get_model
 from utils import plot_fig
 
 def str2bool(v):
@@ -50,7 +50,6 @@ def parse_args():
     parser.add_argument("-i", "--input_file", type=str, help="input file path")
     parser.add_argument("--model_file", type=str)
     parser.add_argument("--params_file", type=str)
-    parser.add_argument("--model_name", type=str, default="PaDiM")
 
     # params for predict
     parser.add_argument("-b", "--batch_size", type=int, default=1)
@@ -137,31 +136,21 @@ def parse_file_paths(input_path: str) -> list:
         files = [osp.join(input_path, file) for file in files]
     return files
 
-def project(x, projection):
-    B, C, H, W = x.shape
-    _, k = projection.shape
-    x = x.reshape((B, C, H*W))
-    result = paddle.zeros((B, k, H, W))
-    for i in range(B):
-        #result[i] = paddle.einsum('chw, cd -> dhw', x[i], self.projection)
-        result[i] = (projection.T @ x[i]).reshape((k, H, W))
-    return result
 def postprocess(args, test_imgs, class_name, outputs, stats):
     outputs = [paddle.to_tensor(i) for i in outputs]
-    outputs = [project(i, stats['projection']) for i in outputs]
+    model = get_model('coreset' if 'memory_bank' in stats.keys() else 'padim+')(None)
+    model.load(stats)
+    outputs = [model.project(i) for i in outputs]
     outputs = paddle.concat(outputs, axis=0)
-    # calculate mahalanobis distance matrix
-    mean = paddle.to_tensor(stats["mean"])
-    inv_covariance = paddle.to_tensor(stats["inv_covariance"])
-    score_map = generate_scores_map(mean, inv_covariance, outputs, (256, 256))
-    
+    score_map, image_score = model.generate_scores_map(outputs, (256, 256))
+    print(f'image_score:{image_score}')
     # Normalization
     max_score = score_map.max()
     min_score = score_map.min()
     scores = (score_map - min_score) / (max_score - min_score)
     save_name = args.save_path
     plot_fig(test_imgs, scores, None, 0.5, save_name, class_name, True, 'infer')
-
+    print('saved')
 
 def main():
     args = parse_args()

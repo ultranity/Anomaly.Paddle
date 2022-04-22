@@ -18,6 +18,7 @@ import argparse
 import paddle
 
 from model import get_model
+import datasets.mvtec as mvtec
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Model export.')
@@ -26,13 +27,14 @@ def parse_args():
         dest='save_dir',
         help='The directory for saving the exported model',
         type=str,
-        default='./output')
+        default=None)
     parser.add_argument(
         '--model_path',
         dest='model_path',
         help='The path of model for export',
         type=str,
-        default="output/sample_resnet18_100/tile.pdparams")
+        default=None)
+    parser.add_argument("--category", type=str, default='leather', help="category name for MvTec AD dataset")
     parser.add_argument("--arch", type=str, default='resnet18', help="backbone model arch, one of [resnet18, resnet50, wide_resnet50_2]")
     parser.add_argument("--k", type=int, default=100, help="feature used")
     parser.add_argument("--method", type=str, default='sample', help="projection method, one of [sample,ortho]")
@@ -44,10 +46,14 @@ def parse_args():
 def main():
     args = parse_args()
     print(args)
-    
+    if args.save_dir == None:
+        args.save_dir = f"output/{args.method}_{args.arch}_{args.k}"
     # build model
-    model = get_model(args.method)(arch=args.arch, pretrained=False, fout=args.k, method= args.method)
-    state = paddle.load(args.model_path)
+    model = get_model(args.method)(arch=args.arch, pretrained=False, k=args.k, method= args.method)
+    class_name = args.category
+    assert class_name in mvtec.CLASS_NAMES
+    model_path = args.model_path or f'{args.save_dir}/{class_name}.pdparams'
+    state = paddle.load(model_path)
     model.model.set_dict(state.pop("params"))
     model.load(state["stats"])
     model.eval()

@@ -30,6 +30,7 @@ def parse_args():
     parser.add_argument('--save_path', type=str, default='./output')
     parser.add_argument('--model_path', type=str, default=None)
     parser.add_argument("--category", type=str , default='tile', help="category name for MvTec AD dataset")
+    parser.add_argument('--resize', type=int, default=256)
     parser.add_argument('--crop_size', type=int, default=256)
     parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--num_workers', type=int, default=0)
@@ -58,7 +59,7 @@ def main():
     paddle.seed(args.seed)
 
     result = []
-    assert (args.category in mvtec.CLASS_NAMES) or (args.category == 'all')
+    assert args.category in mvtec.CLASS_NAMES + ['all', 'textures', 'objects']
     class_names = mvtec.CLASS_NAMES if args.category == 'all' else [args.category]
     csv_columns = ['category','Image_AUROC','Pixel_AUROC', 'PRO_score']
     csv_name = os.path.join(args.save_path, '{}_seed{}.csv'.format(args.category, args.seed))
@@ -67,7 +68,7 @@ def main():
         
         # build model
         model_path = args.model_path or args.save_path + '/{}.pdparams'.format(class_name)
-        model = get_model(args.method)(arch=args.arch, pretrained=False, fout=args.k, method= args.method)
+        model = get_model(args.method)(arch=args.arch, pretrained=False, k=args.k, method= args.method)
         state = paddle.load(model_path)
         model.model.set_dict(state["params"])
         model.load(state["stats"])
@@ -75,7 +76,7 @@ def main():
         #model.compute_inv(state["stats"])
         
         # build datasets
-        test_dataset = mvtec.MVTecDataset(args.data_path, class_name=class_name, is_train=False, cropsize=args.crop_size)
+        test_dataset = mvtec.MVTecDataset(args.data_path, class_name=class_name, is_train=False, resize=args.resize, cropsize=args.crop_size)
         test_dataloader = DataLoader(test_dataset, batch_size=args.test_batch_size, num_workers=args.num_workers)
         result.append([class_name, *eval(args, model, test_dataloader, class_name)])
         if args.category in ['all', 'textures', 'objects']:

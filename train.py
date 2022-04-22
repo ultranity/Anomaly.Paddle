@@ -30,6 +30,7 @@ def parse_args():
     parser.add_argument('--data_path', type=str, default='D:/dataset/mvtec_anomaly_detection')
     parser.add_argument('--save_path', type=str, default='./output')
     parser.add_argument("--category", type=str , default='tile', help="category name for MvTec AD dataset")
+    parser.add_argument('--resize', type=int, default=256)
     parser.add_argument('--crop_size', type=int, default=256)
     parser.add_argument('--num_workers', type=int, default=0)
     parser.add_argument('--batch_size', type=int, default=32)
@@ -70,7 +71,7 @@ def main():
     paddle.seed(args.seed)
     if args.cpu: paddle.device.set_device("cpu")
     # build model
-    model = get_model(args.method)(arch=args.arch, pretrained=True, fout=args.k, method=args.method)
+    model = get_model(args.method)(arch=args.arch, pretrained=True, k=args.k, method=args.method)
     if args.load_projection:
         model.projection = paddle.to_tensor(np.load(args.load_projection))
     else:
@@ -78,6 +79,7 @@ def main():
     model.eval()
     #print(model.projection)
     result = []
+    assert args.category in mvtec.CLASS_NAMES + ['all', 'textures', 'objects']
     if args.category == 'all':
         class_names = mvtec.CLASS_NAMES
     elif args.category == 'textures':
@@ -91,11 +93,11 @@ def main():
     for i,class_name in enumerate(class_names):
         print("Training model {}/{} for {}".format(i+1, len(class_names), class_name))
         # build datasets
-        train_dataset = mvtec.MVTecDataset(args.data_path, class_name=class_name, is_train=True, cropsize=args.crop_size)
+        train_dataset = mvtec.MVTecDataset(args.data_path, class_name=class_name, is_train=True, resize=args.resize, cropsize=args.crop_size)
         train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.num_workers)
         train(args, model, train_dataloader, class_name)
         if args.eval:
-            test_dataset = mvtec.MVTecDataset(args.data_path, class_name=class_name, is_train=False, cropsize=args.crop_size)
+            test_dataset = mvtec.MVTecDataset(args.data_path, class_name=class_name, is_train=False, resize=args.resize, cropsize=args.crop_size)
             test_dataloader = DataLoader(test_dataset, batch_size=args.test_batch_size, num_workers=args.num_workers)
             result.append([class_name, *eval(args, model, test_dataloader, class_name)])
             if args.category in ['all', 'textures', 'objects']:

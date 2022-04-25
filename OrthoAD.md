@@ -15,7 +15,7 @@ OrthoAD算法在[PaDiM](PaDiM.md)的基础之上对数据降维过程进行了�
 
 感谢百度 AIStudio 提供的算力支持。
 
-**aistudio体验教程:** [地址](https://aistudio.baidu.com/aistudio/projectdetail/3824965)
+**aistudio体验教程:** [地址](https://aistudio.baidu.com/aistudio/projectdetail/3833915)
 
 ## 2. 复现精度
 
@@ -82,7 +82,7 @@ zipper     | 0.9876 | 0.9861 |
 
 训练及预测日志：[PaDiM](./logs/OrthoAD.log)
 
-AIStudio预训练权重：[notebook](https://aistudio.baidu.com/aistudio/projectdetail/3824965)
+AIStudio预训练权重：[notebook](https://aistudio.baidu.com/aistudio/projectdetail/3833915)
 注意：该算法不需要模型训练，没有学习率设置和损失log，设定seed相同即可复现所有输出。
 
 ## 3. 准备数据与环境
@@ -121,7 +121,7 @@ objects = ['bottle','cable', 'capsule','hazelnut', 'metal_nut', 'pill', 'screw',
 
 ## 4. 开始使用
 
-可使用 [AIStudio notebook](https://aistudio.baidu.com/aistudio/projectdetail/3824965) 快速体验
+可使用 [AIStudio notebook](https://aistudio.baidu.com/aistudio/projectdetail/3833915) 快速体验
 
 ### 4.1 模型训练
 

@@ -16,9 +16,8 @@
 
 - [X] [PaDiM: a Patch Distribution Modeling Framework for Anomaly Detection and Localization](https://arxiv.org/abs/2011.08785)
 - [x] [Semi-orthogonal Embedding for Efficient Unsupervised Anomaly Segmentation](https://arxiv.org/abs/2105.14737)
+- [x] [PatchCore: Towards Total Recall in Industrial Anomaly Detection ](https://arxiv.org/abs/2106.08265)
 - [ ] [Modeling the Distribution of Normal Data in Pre-Trained Deep Features for Anomaly Detection](https://arxiv.org/abs/2005.14140)
-- [ ] [PatchCore: Towards Total Recall in Industrial Anomaly Detection ](https://arxiv.org/abs/2106.08265)
-
 and so on...
 
 ## 数据集|Datasets:
@@ -52,8 +51,7 @@ pip install -r requirements.txt
 见各算法单独文档
 - [PaDiM](PaDiM.md)
 - [OrthoAD](OrthoAD.md)
-
-更多日志及预训练模型见 **aistudio体验教程:** [地址](https://aistudio.baidu.com/aistudio/projectdetail/3824965)
+- [PatchCore](PatchCore.md)
 
 ## 代码结构
 
